@@ -1,0 +1,33 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.apiRouter = void 0;
+const express_1 = require("express");
+const addresses_routes_1 = require("./addresses/addresses.routes");
+const admin_routes_1 = require("./admin/admin.routes");
+const auth_routes_1 = require("./auth/auth.routes");
+const cart_routes_1 = require("./cart/cart.routes");
+const categories_routes_1 = require("./categories/categories.routes");
+const combos_routes_1 = require("./combos/combos.routes");
+const kitchen_routes_1 = require("./kitchen/kitchen.routes");
+const inventory_routes_1 = require("./inventory/inventory.routes");
+const orders_routes_1 = require("./orders/orders.routes");
+const payments_routes_1 = require("./payments/payments.routes");
+const products_routes_1 = require("./products/products.routes");
+const promotions_routes_1 = require("./promotions/promotions.routes");
+const riders_routes_1 = require("./riders/riders.routes");
+/** API composition only: feature modules own their routes and workflows. */
+exports.apiRouter = (0, express_1.Router)();
+exports.apiRouter.use("/auth", auth_routes_1.authRouter);
+exports.apiRouter.use("/categories", categories_routes_1.categoriesRouter);
+exports.apiRouter.use("/products", products_routes_1.productsRouter);
+exports.apiRouter.use("/combos", combos_routes_1.combosRouter);
+exports.apiRouter.use("/addresses", addresses_routes_1.addressesRouter);
+exports.apiRouter.use("/cart", cart_routes_1.cartRouter);
+exports.apiRouter.use("/orders", orders_routes_1.ordersRouter);
+exports.apiRouter.use("/payments", payments_routes_1.paymentsRouter);
+exports.apiRouter.use("/kitchen", kitchen_routes_1.kitchenRouter);
+exports.apiRouter.use("/rider", riders_routes_1.ridersRouter);
+exports.apiRouter.use("/admin", admin_routes_1.adminRouter);
+exports.apiRouter.use("/admin", inventory_routes_1.inventoryRouter);
+exports.apiRouter.use("/admin/promotions", promotions_routes_1.promotionsRouter);
+//# sourceMappingURL=index.js.map
