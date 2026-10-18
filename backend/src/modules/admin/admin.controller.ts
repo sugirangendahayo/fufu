@@ -1,0 +1,11 @@
+import type { Request, Response } from "express";
+import { asyncHandler } from "../../lib/http";
+import { categorySchema, orderStatusSchema, productSchema, riderSchema, variantSchema } from "./admin.schema";
+import * as service from "./admin.service";
+export const createCategory = asyncHandler(async (req: Request, res: Response) => res.status(201).json({ data: await service.createCategory(categorySchema.parse(req.body)) }));
+export const updateCategory = asyncHandler(async (req: Request, res: Response) => res.json({ data: await service.updateCategory(String(req.params.id), categorySchema.partial().parse(req.body)) }));
+export const createProduct = asyncHandler(async (req: Request, res: Response) => res.status(201).json({ data: await service.createProduct(productSchema.parse(req.body)) }));
+export const updateProduct = asyncHandler(async (req: Request, res: Response) => res.json({ data: await service.updateProduct(String(req.params.id), productSchema.partial().parse(req.body)) }));
+export const createVariant = asyncHandler(async (req: Request, res: Response) => res.status(201).json({ data: await service.createVariant(String(req.params.id), variantSchema.parse(req.body)) }));
+export const assignRider = asyncHandler(async (req: Request, res: Response) => res.json({ data: await service.assignRider(String(req.params.id), riderSchema.parse(req.body), req.auth!.userId) }));
+export const updateOrderStatus = asyncHandler(async (req: Request, res: Response) => res.json({ data: await service.updateOrderStatus(String(req.params.id), orderStatusSchema.parse(req.body).status, req.auth!) }));
