@@ -1,0 +1,10 @@
+import { Router } from "express";
+import { authenticate } from "../../middleware/auth";
+import * as controller from "./cart.controller";
+export const cartRouter = Router();
+cartRouter.use(authenticate);
+cartRouter.get("/", controller.show);
+cartRouter.post("/items", controller.add);
+cartRouter.patch("/items/:itemId", controller.update);
+cartRouter.delete("/items/:itemId", controller.remove);
+cartRouter.delete("/", controller.clear);
