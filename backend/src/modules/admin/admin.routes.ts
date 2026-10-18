@@ -1,0 +1,12 @@
+import { Router } from "express";
+import { allow, authenticate } from "../../middleware/auth";
+import * as controller from "./admin.controller";
+export const adminRouter = Router();
+adminRouter.use(authenticate, allow("ADMIN"));
+adminRouter.post("/categories", controller.createCategory);
+adminRouter.patch("/categories/:id", controller.updateCategory);
+adminRouter.post("/products", controller.createProduct);
+adminRouter.patch("/products/:id", controller.updateProduct);
+adminRouter.post("/products/:id/variants", controller.createVariant);
+adminRouter.post("/orders/:id/assign-rider", controller.assignRider);
+adminRouter.patch("/orders/:id/status", controller.updateOrderStatus);
