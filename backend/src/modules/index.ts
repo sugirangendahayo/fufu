@@ -1,0 +1,30 @@
+import { Router } from "express";
+import { addressesRouter } from "./addresses/addresses.routes";
+import { adminRouter } from "./admin/admin.routes";
+import { authRouter } from "./auth/auth.routes";
+import { cartRouter } from "./cart/cart.routes";
+import { categoriesRouter } from "./categories/categories.routes";
+import { combosRouter } from "./combos/combos.routes";
+import { kitchenRouter } from "./kitchen/kitchen.routes";
+import { inventoryRouter } from "./inventory/inventory.routes";
+import { ordersRouter } from "./orders/orders.routes";
+import { paymentsRouter } from "./payments/payments.routes";
+import { productsRouter } from "./products/products.routes";
+import { promotionsRouter } from "./promotions/promotions.routes";
+import { ridersRouter } from "./riders/riders.routes";
+
+/** API composition only: feature modules own their routes and workflows. */
+export const apiRouter = Router();
+apiRouter.use("/auth", authRouter);
+apiRouter.use("/categories", categoriesRouter);
+apiRouter.use("/products", productsRouter);
+apiRouter.use("/combos", combosRouter);
+apiRouter.use("/addresses", addressesRouter);
+apiRouter.use("/cart", cartRouter);
+apiRouter.use("/orders", ordersRouter);
+apiRouter.use("/payments", paymentsRouter);
+apiRouter.use("/kitchen", kitchenRouter);
+apiRouter.use("/rider", ridersRouter);
+apiRouter.use("/admin", adminRouter);
+apiRouter.use("/admin", inventoryRouter);
+apiRouter.use("/admin/promotions", promotionsRouter);
