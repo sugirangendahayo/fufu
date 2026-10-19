@@ -12,6 +12,9 @@ const schema = z.object({
   DELIVERY_FEE_RWF: z.coerce.number().int().nonnegative().default(1000),
   FLUTTERWAVE_SECRET_KEY: z.string().optional(),
   FLUTTERWAVE_WEBHOOK_SECRET: z.string().optional(),
+  VONAGE_API_KEY: z.string().min(1).optional(),
+  VONAGE_API_SECRET: z.string().min(1).optional(),
+  VONAGE_VERIFY_BRAND: z.string().trim().min(1).max(32).default("Fufu"),
 });
 
 export const env = schema.parse(process.env);
