@@ -39,6 +39,8 @@ const auth_1 = require("../../middleware/auth");
 const controller = __importStar(require("./auth.controller"));
 exports.authRouter = (0, express_1.Router)();
 exports.authRouter.post("/register", controller.register);
+exports.authRouter.post("/phone-verifications", controller.requestPhoneVerification);
+exports.authRouter.post("/verify-phone", controller.verifyPhone);
 exports.authRouter.post("/login", controller.login);
 exports.authRouter.post("/refresh", controller.refresh);
 exports.authRouter.post("/logout", controller.logout);
