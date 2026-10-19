@@ -4,7 +4,7 @@ const attempts = new Map<string, { count: number; resetAt: number }>();
 
 /** In-memory limiter is intentionally only appropriate for a single application instance. */
 export const authRateLimit: RequestHandler = (req, res, next) => {
-  if (!['/login', '/register', '/refresh'].includes(req.path)) return next();
+  if (!['/login', '/register', '/refresh', '/phone-verifications', '/verify-phone'].includes(req.path)) return next();
   const key = `${req.ip}:${req.path}`;
   const now = Date.now();
   const existing = attempts.get(key);
