@@ -35,8 +35,24 @@ async function sendVerification(phone, channel) {
         }),
     });
     const body = await responseBody(response);
-    if (!response.ok || typeof body.request_id !== "string")
+    if (!response.ok || typeof body.request_id !== "string") {
+        console.warn("Vonage verification request rejected", {
+            channel,
+            phoneSuffix: phone.slice(-4),
+            status: response.status,
+            providerMessage: typeof body.detail === "string"
+                ? body.detail
+                : typeof body.title === "string"
+                    ? body.title
+                    : undefined,
+        });
         throw deliveryError(body);
+    }
+    console.info("Vonage verification request accepted", {
+        requestId: body.request_id,
+        channel,
+        phoneSuffix: phone.slice(-4),
+    });
     return body.request_id;
 }
 async function checkVerification(requestId, code) {
@@ -49,10 +65,18 @@ async function checkVerification(requestId, code) {
         body: JSON.stringify({ code }),
     });
     const body = await responseBody(response);
-    if (response.ok)
-        return body.status === "completed";
-    if (response.status >= 400 && response.status < 500)
+    if (response.ok) {
+        const approved = body.status === "completed";
+        console.info("Vonage verification code checked", { requestId, approved });
+        return approved;
+    }
+    if (response.status >= 400 && response.status < 500) {
+        console.info("Vonage verification code rejected", {
+            requestId,
+            status: response.status,
+        });
         return false;
+    }
     throw deliveryError(body);
 }
 //# sourceMappingURL=vonage-verify.js.map
