@@ -4,7 +4,8 @@ import { env } from "../../config/env";
 import { AppError } from "../../lib/http";
 import { normalizeRwandaPhone } from "../../lib/phone";
 import { createAccessToken, createRefreshToken, hashPassword, hashToken, verifyPassword, verifyRefreshToken } from "../../lib/security";
-import type { ChangePasswordInput, CredentialsInput, ProfileInput, RegisterInput } from "./auth.schema";
+import { checkVerification, sendVerification } from "../../lib/vonage-verify";
+import type { ChangePasswordInput, CredentialsInput, PhoneVerificationRequest, ProfileInput, RegisterInput, VerifyPhoneInput } from "./auth.schema";
 
 const publicUser = { id: true, phone: true, firstName: true, lastName: true, role: true, isActive: true, createdAt: true } as const;
 type Meta = { ip?: string; userAgent?: string };
@@ -19,12 +20,45 @@ export async function issueTokens(user: { id: string; role: UserRole }, meta: Me
 }
 
 export async function register(input: RegisterInput, meta: Meta) {
-  const user = await prisma.user.create({ data: { phone: normalizeRwandaPhone(input.phone), firstName: input.firstName.trim(), lastName: input.lastName?.trim(), passwordHash: await hashPassword(input.password) }, select: publicUser });
-  return { user, ...(await issueTokens(user, meta)) };
+  const phone = normalizeRwandaPhone(input.phone);
+  const existing = await prisma.user.findUnique({ where: { phone }, select: publicUser });
+  if (existing?.isActive) throw new AppError(409, "An account with that phone number already exists", "PHONE_ALREADY_REGISTERED");
+  const user = existing ?? await prisma.user.create({ data: { phone, firstName: input.firstName.trim(), lastName: input.lastName?.trim(), passwordHash: await hashPassword(input.password), isActive: false }, select: publicUser });
+  await createPhoneVerification(user.id, phone, input.channel);
+  return { user, verificationRequired: true, channel: input.channel };
+}
+
+export async function requestPhoneVerification(input: PhoneVerificationRequest) {
+  const phone = normalizeRwandaPhone(input.phone);
+  const user = await prisma.user.findUnique({ where: { phone }, select: { id: true, phoneVerifiedAt: true } });
+  if (!user) throw new AppError(404, "No account was found for that phone number", "PHONE_NOT_REGISTERED");
+  if (user.phoneVerifiedAt) throw new AppError(409, "This phone number is already verified", "PHONE_ALREADY_VERIFIED");
+  await createPhoneVerification(user.id, phone, input.channel);
+  return { phone, verificationRequired: true, channel: input.channel };
+}
+
+export async function verifyPhone(input: VerifyPhoneInput, meta: Meta) {
+  const phone = normalizeRwandaPhone(input.phone);
+  const user = await prisma.user.findUnique({ where: { phone } });
+  if (!user) throw new AppError(404, "No account was found for that phone number", "PHONE_NOT_REGISTERED");
+  const verification = await prisma.phoneVerification.findFirst({ where: { userId: user.id, consumedAt: null }, orderBy: { createdAt: "desc" } });
+  if (!verification) throw new AppError(422, "Request a new verification code", "VERIFICATION_NOT_REQUESTED");
+  if (!(await checkVerification(verification.providerRequestId, input.code))) throw new AppError(422, "The verification code is invalid or has expired", "INVALID_VERIFICATION_CODE");
+  const verifiedUser = await prisma.$transaction(async (tx) => {
+    const consumed = await tx.phoneVerification.updateMany({ where: { id: verification.id, consumedAt: null }, data: { consumedAt: new Date() } });
+    if (!consumed.count) throw new AppError(409, "This verification code has already been used", "VERIFICATION_ALREADY_USED");
+    return tx.user.update({ where: { id: user.id }, data: { isActive: true, phoneVerifiedAt: new Date() }, select: publicUser });
+  });
+  return { user: verifiedUser, ...(await issueTokens(verifiedUser, meta)) };
+}
+
+async function createPhoneVerification(userId: string, phone: string, channel: PhoneVerificationRequest["channel"]) {
+  const providerRequestId = await sendVerification(phone, channel);
+  await prisma.phoneVerification.create({ data: { userId, providerRequestId, channel } });
 }
 export async function login(input: CredentialsInput, meta: Meta) {
   const user = await prisma.user.findUnique({ where: { phone: normalizeRwandaPhone(input.phone) } });
-  if (!user || !user.isActive || !(await verifyPassword(input.password, user.passwordHash))) throw new AppError(401, "Invalid phone number or password", "INVALID_CREDENTIALS");
+  if (!user || !user.isActive || !user.phoneVerifiedAt || !(await verifyPassword(input.password, user.passwordHash))) throw new AppError(401, "Invalid phone number or password", "INVALID_CREDENTIALS");
   const { passwordHash: _passwordHash, ...safeUser } = user;
   return { user: safeUser, ...(await issueTokens(user, meta)) };
 }
