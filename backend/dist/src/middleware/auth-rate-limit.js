@@ -4,7 +4,7 @@ exports.authRateLimit = void 0;
 const attempts = new Map();
 /** In-memory limiter is intentionally only appropriate for a single application instance. */
 const authRateLimit = (req, res, next) => {
-    if (!['/login', '/register', '/refresh'].includes(req.path))
+    if (!['/login', '/register', '/refresh', '/phone-verifications', '/verify-phone'].includes(req.path))
         return next();
     const key = `${req.ip}:${req.path}`;
     const now = Date.now();
