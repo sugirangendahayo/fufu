@@ -14,6 +14,9 @@ const schema = zod_1.z.object({
     DELIVERY_FEE_RWF: zod_1.z.coerce.number().int().nonnegative().default(1000),
     FLUTTERWAVE_SECRET_KEY: zod_1.z.string().optional(),
     FLUTTERWAVE_WEBHOOK_SECRET: zod_1.z.string().optional(),
+    VONAGE_API_KEY: zod_1.z.string().min(1).optional(),
+    VONAGE_API_SECRET: zod_1.z.string().min(1).optional(),
+    VONAGE_VERIFY_BRAND: zod_1.z.string().trim().min(1).max(32).default("Fufu"),
 });
 exports.env = schema.parse(process.env);
 if (exports.env.NODE_ENV === "production" && (exports.env.ACCESS_TOKEN_SECRET.includes("development-only") || exports.env.REFRESH_TOKEN_SECRET.includes("development-only"))) {
