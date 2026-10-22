@@ -52,12 +52,12 @@ export const authApi = {
     password: string;
     firstName: string;
     lastName?: string;
-    channel: "sms" | "whatsapp";
+    channel: "sms"; // Pindo Verify is SMS-only
   }) => request<{ data: { user: AuthUser; verificationRequired: boolean } }>("/auth/register", input),
   login: (input: { phone: string; password: string }) =>
     request<{ data: { user: AuthUser } & Tokens }>("/auth/login", input),
   verifyPhone: (input: { phone: string; code: string }) =>
     request<{ data: { user: AuthUser } & Tokens }>("/auth/verify-phone", input),
-  resendCode: (input: { phone: string; channel: "sms" | "whatsapp" }) =>
+  resendCode: (input: { phone: string; channel: "sms" }) => // Pindo Verify is SMS-only
     request<{ data: { verificationRequired: boolean } }>("/auth/phone-verifications", input),
 };
