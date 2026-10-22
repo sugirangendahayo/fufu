@@ -1,0 +1,21 @@
+{
+  "default_branch": "dev",
+  "branches": [
+    "dev",
+    "ft/phone-sms",
+    "main",
+    "origin"
+  ],
+  "parent": {
+    "dev": null,
+    "ft/phone-sms": "dev",
+    "main": "dev",
+    "origin": "dev"
+  },
+  "order": [
+    "dev",
+    "ft/phone-sms",
+    "main",
+    "origin"
+  ]
+}
