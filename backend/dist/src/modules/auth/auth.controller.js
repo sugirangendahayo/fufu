@@ -33,13 +33,19 @@ var __importStar = (this && this.__importStar) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.changePassword = exports.updateProfile = exports.me = exports.logout = exports.refresh = exports.login = exports.register = void 0;
+exports.changePassword = exports.updateProfile = exports.me = exports.logout = exports.refresh = exports.login = exports.verifyPhone = exports.requestPhoneVerification = exports.register = void 0;
 const http_1 = require("../../lib/http");
 const service = __importStar(require("./auth.service"));
 const auth_schema_1 = require("./auth.schema");
 exports.register = (0, http_1.asyncHandler)(async (req, res) => {
     const result = await service.register(auth_schema_1.registerSchema.parse(req.body), { ip: req.ip, userAgent: req.header("user-agent") });
     res.status(201).json({ data: result });
+});
+exports.requestPhoneVerification = (0, http_1.asyncHandler)(async (req, res) => {
+    res.status(202).json({ data: await service.requestPhoneVerification(auth_schema_1.requestPhoneVerificationSchema.parse(req.body)) });
+});
+exports.verifyPhone = (0, http_1.asyncHandler)(async (req, res) => {
+    res.json({ data: await service.verifyPhone(auth_schema_1.verifyPhoneSchema.parse(req.body), { ip: req.ip, userAgent: req.header("user-agent") }) });
 });
 exports.login = (0, http_1.asyncHandler)(async (req, res) => {
     res.json({ data: await service.login(auth_schema_1.credentialsSchema.parse(req.body), { ip: req.ip, userAgent: req.header("user-agent") }) });
