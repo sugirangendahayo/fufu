@@ -5,8 +5,9 @@ Express 5, TypeScript, PostgreSQL, Prisma 7 backend for a Rwanda food-ordering a
 ## Run
 
 1. Copy `.env.example` to `.env` and set a PostgreSQL URL plus strong, distinct token secrets.
-2. Run `npm install`, `npm run db:deploy`, `npm run db:generate`, and `npm run db:seed`.
-3. Start development with `npm run dev`; production is `npm run build && npm start`.
+2. Set `PINDO_API_TOKEN` to your Pindo API token (get one at https://app.pindo.io → Settings → API Tokens). Phone OTP verification will return HTTP 503 until this is set.
+3. Run `npm install`, `npm run db:deploy`, `npm run db:generate`, and `npm run db:seed`.
+4. Start development with `npm run dev`; production is `npm run build && npm start`.
 
 Useful checks: `npm run typecheck`, `npm test`, `npx prisma validate`, and `npx prisma migrate status`.
 
