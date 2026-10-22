@@ -1,5 +1,6 @@
 import { StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { OUTFIT } from "@/theme/fonts";
 
 type ScreenPlaceholderProps = {
   title: string;
@@ -33,12 +34,14 @@ const styles = StyleSheet.create({
   },
   title: {
     color: "#1F2937",
+    fontFamily: OUTFIT.bold,
     fontSize: 32,
     fontWeight: "700",
     marginBottom: 12,
   },
   description: {
     color: "#4B5563",
+    fontFamily: OUTFIT.regular,
     fontSize: 17,
     lineHeight: 26,
   },

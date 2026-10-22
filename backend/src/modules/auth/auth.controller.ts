@@ -1,11 +1,17 @@
 import type { Request, Response } from "express";
 import { asyncHandler } from "../../lib/http";
 import * as service from "./auth.service";
-import { changePasswordSchema, credentialsSchema, profileSchema, refreshSchema, registerSchema } from "./auth.schema";
+import { changePasswordSchema, credentialsSchema, profileSchema, refreshSchema, registerSchema, requestPhoneVerificationSchema, verifyPhoneSchema } from "./auth.schema";
 
 export const register = asyncHandler(async (req: Request, res: Response) => {
   const result = await service.register(registerSchema.parse(req.body), { ip: req.ip, userAgent: req.header("user-agent") });
   res.status(201).json({ data: result });
+});
+export const requestPhoneVerification = asyncHandler(async (req: Request, res: Response) => {
+  res.status(202).json({ data: await service.requestPhoneVerification(requestPhoneVerificationSchema.parse(req.body)) });
+});
+export const verifyPhone = asyncHandler(async (req: Request, res: Response) => {
+  res.json({ data: await service.verifyPhone(verifyPhoneSchema.parse(req.body), { ip: req.ip, userAgent: req.header("user-agent") }) });
 });
 export const login = asyncHandler(async (req: Request, res: Response) => {
   res.json({ data: await service.login(credentialsSchema.parse(req.body), { ip: req.ip, userAgent: req.header("user-agent") }) });

@@ -12,6 +12,13 @@ const schema = z.object({
   DELIVERY_FEE_RWF: z.coerce.number().int().nonnegative().default(1000),
   FLUTTERWAVE_SECRET_KEY: z.string().optional(),
   FLUTTERWAVE_WEBHOOK_SECRET: z.string().optional(),
+  PINDO_API_TOKEN: z.string().min(1).optional(),
+  PINDO_VERIFY_BRAND: z.string().trim().min(1).max(32).default("Fufu"),
+  // Set to true to bypass OTP during development when Pindo has no balance.
+  // Never enable this in production.
+  SKIP_PHONE_VERIFICATION: z
+    .preprocess((v) => v === "true" || v === true, z.boolean())
+    .default(false),
 });
 
 export const env = schema.parse(process.env);

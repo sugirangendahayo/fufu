@@ -66,6 +66,7 @@ model User {
   lastName     String?
   role         UserRole @default(CUSTOMER)
   isActive     Boolean  @default(true)
+  phoneVerifiedAt DateTime?
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
@@ -75,6 +76,7 @@ model User {
   sessions         Session[]
   riderAssignments RiderAssignment[] @relation("RiderAssignments")
   riderOrders      Order[]           @relation("RiderOrders")
+  phoneVerifications PhoneVerification[]
 
   @@index([role, isActive])
 }
@@ -322,6 +324,19 @@ model Session {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId, expiresAt])
+}
+
+model PhoneVerification {
+  id                String   @id @default(cuid())
+  userId            String
+  providerRequestId String   @unique
+  channel           String
+  createdAt         DateTime @default(now())
+  consumedAt        DateTime?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
 }
 
 model PromotionRedemption {
