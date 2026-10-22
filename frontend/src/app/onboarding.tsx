@@ -1,128 +1,366 @@
 import { Image } from "expo-image";
 import { router, type Href } from "expo-router";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import {
-  Animated,
   Dimensions,
   Pressable,
-  ScrollView,
   StyleSheet,
   Text,
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import Animated, {
+  interpolate,
+  interpolateColor,
+  runOnJS,
+  useAnimatedScrollHandler,
+  useAnimatedStyle,
+  useSharedValue,
+  Extrapolation,
+} from "react-native-reanimated";
+import { OUTFIT } from "@/theme/fonts";
 
 const { width } = Dimensions.get("window");
+
 const slides = [
   {
-    image: require("@/assets/images/Photorealistic Fast-Food Feast Collage.png"),
-    eyebrow: "FUFU IS HERE",
-    title: "Your favourite food, without the wait.",
-    body: "Fresh meals from nearby kitchens, ready when you are.",
+    image: require("@/assets/images/onboarding1.png"),
+    title: "Your favourite food,\njust a few taps away.",
+    body: "From juicy burgers and delicious pizza to crispy chicken, discover your cravings and find your next favourite meal.",
+    tint: "#E95F18",
   },
   {
-    image: require("@/assets/images/Colorful Delivery Rider on Scooter.png"),
-    eyebrow: "TRACK EVERY ORDER",
-    title: "From the kitchen straight to your door.",
-    body: "Know exactly when your meal is being prepared and delivered.",
+    image: require("@/assets/images/onboarding2.png"),
+    title: "Your meal,\nwith a little extra.",
+    body: "Pair your favourite burger, pizza, or crispy chicken with a refreshing juice and your preferred spice level.",
+    tint: "#D6490C",
   },
   {
-    image: require("@/assets/images/Discount Burger with 45% Off Badge.png"),
-    eyebrow: "MORE TO LOVE",
-    title: "Good food feels even better with a deal.",
-    body: "Discover favourites, combos, and offers made for you.",
+    image: require("@/assets/images/onboarding3.png"),
+    title: "Good food,\ndelivered to your door.",
+    body: "Sit back and relax while our delivery riders bring your favourite meals straight to you, fresh and ready.",
+    tint: "#C23D08",
   },
 ];
 
+const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
+
 export default function OnboardingScreen() {
-  const scrollRef = useRef<ScrollView>(null);
-  const fade = useRef(new Animated.Value(1)).current;
+  const scrollRef = useRef<Animated.ScrollView>(null);
+  const scrollX = useSharedValue(0);
   const [active, setActive] = useState(0);
 
-  useEffect(() => {
-    const timer = setInterval(() => {
-      const next = active === slides.length - 1 ? 0 : active + 1;
-      scrollRef.current?.scrollTo({ x: next * width, animated: true });
-      setActive(next);
-    }, 4600);
-    return () => clearInterval(timer);
-  }, [active]);
+  const scrollHandler = useAnimatedScrollHandler({
+    onScroll: (event) => {
+      scrollX.value = event.contentOffset.x;
+    },
+  });
 
-  useEffect(() => {
-    fade.setValue(0.76);
-    Animated.timing(fade, { toValue: 1, duration: 360, useNativeDriver: true }).start();
-  }, [active, fade]);
-
-  const goTo = (index: number) => {
-    scrollRef.current?.scrollTo({ x: index * width, animated: true });
+  const updateActive = useCallback((index: number) => {
     setActive(index);
-  };
+  }, []);
+
+  const onMomentumEnd = useAnimatedScrollHandler({
+    onMomentumEnd: (event) => {
+      const index = Math.round(event.contentOffset.x / width);
+      runOnJS(updateActive)(index);
+    },
+  });
+
+const goTo = (index: number) => {
+  scrollRef.current?.scrollTo({ x: index * width, animated: true });
+  setActive(index);
+};
+  const isLast = active === slides.length - 1;
 
   return (
     <SafeAreaView style={styles.safeArea} edges={["top", "bottom"]}>
-      <View style={styles.topRow}>
-        <Text style={styles.brand}>FUFU</Text>
-        <Pressable onPress={() => router.replace("/auth/login" as Href)} hitSlop={12}>
-          <Text style={styles.skip}>Skip</Text>
-        </Pressable>
-      </View>
-      <ScrollView
+      <Animated.ScrollView
         ref={scrollRef}
+        style={styles.carousel}
         horizontal
         pagingEnabled
         showsHorizontalScrollIndicator={false}
-        onMomentumScrollEnd={(event) =>
-          setActive(Math.round(event.nativeEvent.contentOffset.x / width))
-        }>
-        {slides.map((slide) => (
-          <View key={slide.title} style={styles.slide}>
-            <Animated.View style={[styles.artCard, { opacity: fade }]}>
-              <Image contentFit="contain" source={slide.image} style={styles.art} />
-            </Animated.View>
-            <Animated.View style={{ opacity: fade }}>
-              <Text style={styles.eyebrow}>{slide.eyebrow}</Text>
-              <Text style={styles.title}>{slide.title}</Text>
-              <Text style={styles.body}>{slide.body}</Text>
-            </Animated.View>
-          </View>
+        bounces={false}
+        scrollEventThrottle={16}
+        onScroll={scrollHandler}
+        onMomentumScrollEnd={onMomentumEnd.onMomentumEnd as never}
+      >
+        {slides.map((slide, index) => (
+          <Slide key={slide.title} slide={slide} index={index} scrollX={scrollX} />
         ))}
-      </ScrollView>
+      </Animated.ScrollView>
+
       <View style={styles.bottomArea}>
         <View style={styles.dots}>
-          {slides.map((slide, index) => (
-            <Pressable key={slide.title} onPress={() => goTo(index)} hitSlop={10}>
-              <View style={[styles.dot, active === index && styles.dotActive]} />
-            </Pressable>
+          {slides.map((_, index) => (
+            <Dot key={index} index={index} scrollX={scrollX} onPress={() => goTo(index)} />
           ))}
         </View>
-        <Pressable
-          onPress={() => router.replace("/auth/login" as Href)}
-          style={({ pressed }) => [styles.button, pressed && styles.buttonPressed]}>
-          <Text style={styles.buttonText}>Get started</Text>
-          <Text style={styles.buttonArrow}>→</Text>
-        </Pressable>
+
+        <MorphingCta
+          scrollX={scrollX}
+          onPress={() =>
+            isLast
+              ? router.replace("/auth/login" as Href)
+              : goTo(active + 1)
+          }
+        />
       </View>
     </SafeAreaView>
   );
 }
 
+function Slide({
+  slide,
+  index,
+  scrollX,
+}: {
+  slide: (typeof slides)[number];
+  index: number;
+  scrollX: Animated.SharedValue<number>;
+}) {
+  const inputRange = [(index - 1) * width, index * width, (index + 1) * width];
+
+  const imageStyle = useAnimatedStyle(() => {
+    const translateX = interpolate(
+      scrollX.value,
+      inputRange,
+      [width * 0.22, 0, -width * 0.22],
+      Extrapolation.CLAMP
+    );
+    const scale = interpolate(
+      scrollX.value,
+      inputRange,
+      [0.82, 1, 0.82],
+      Extrapolation.CLAMP
+    );
+    const opacity = interpolate(
+      scrollX.value,
+      inputRange,
+      [0, 1, 0],
+      Extrapolation.CLAMP
+    );
+    return { transform: [{ translateX }, { scale }], opacity };
+  });
+
+  const textStyle = useAnimatedStyle(() => {
+    const translateY = interpolate(
+      scrollX.value,
+      inputRange,
+      [18, 0, 18],
+      Extrapolation.CLAMP
+    );
+    const opacity = interpolate(
+      scrollX.value,
+      inputRange,
+      [0, 1, 0],
+      Extrapolation.CLAMP
+    );
+    return { transform: [{ translateY }], opacity };
+  });
+
+  return (
+    <View style={styles.slide}>
+      <View style={styles.artCard}>
+        <Animated.View style={[styles.artWrap, imageStyle]}>
+          <Image contentFit="contain" source={slide.image} style={styles.art} />
+        </Animated.View>
+      </View>
+      <Animated.View style={textStyle}>
+        <Text style={styles.title}>{slide.title}</Text>
+        <Text style={styles.body}>{slide.body}</Text>
+      </Animated.View>
+    </View>
+  );
+}
+
+function Dot({
+  index,
+  scrollX,
+  onPress,
+}: {
+  index: number;
+  scrollX: Animated.SharedValue<number>;
+  onPress: () => void;
+}) {
+  const inputRange = [(index - 1) * width, index * width, (index + 1) * width];
+
+  const dotStyle = useAnimatedStyle(() => {
+    const dotWidth = interpolate(
+      scrollX.value,
+      inputRange,
+      [8, 26, 8],
+      Extrapolation.CLAMP
+    );
+    const backgroundColor = interpolateColor(
+      scrollX.value,
+      inputRange,
+      ["#E7D8C8", "#E95F18", "#E7D8C8"]
+    );
+    return { width: dotWidth, backgroundColor };
+  });
+
+  return (
+    <AnimatedPressable onPress={onPress} hitSlop={10} style={[styles.dot, dotStyle]} />
+  );
+}
+
+const lastIndex = slides.length - 1;
+const lastRange = [
+  (lastIndex - 1) * width,
+  lastIndex * width,
+];
+
+function MorphingCta({
+  scrollX,
+  onPress,
+}: {
+  scrollX: Animated.SharedValue<number>;
+  onPress: () => void;
+}) {
+  // Progress 0 -> 1 as the user scrolls from the second-to-last slide
+  // into the final slide. Everything below reads off this one value,
+  // the same way the dots and parallax read off scrollX directly —
+  // so the CTA morphs on the same physics as the rest of the screen
+  // instead of behaving like a separately-styled element.
+  const containerStyle = useAnimatedStyle(() => {
+    const ctaWidth = interpolate(
+      scrollX.value,
+      lastRange,
+      [148, width - 56],
+      Extrapolation.CLAMP
+    );
+    const radius = interpolate(
+      scrollX.value,
+      lastRange,
+      [28, 16],
+      Extrapolation.CLAMP
+    );
+    return { width: ctaWidth, borderRadius: radius };
+  });
+
+  const labelStyle = useAnimatedStyle(() => {
+    const opacity = interpolate(
+      scrollX.value,
+      [lastRange[1] - width * 0.35, lastRange[1]],
+      [0, 1],
+      Extrapolation.CLAMP
+    );
+    return { opacity };
+  });
+
+  const compactLabelStyle = useAnimatedStyle(() => {
+    const opacity = interpolate(
+      scrollX.value,
+      [lastRange[0], lastRange[0] + width * 0.3],
+      [1, 0],
+      Extrapolation.CLAMP
+    );
+    return { opacity, position: "absolute" as const };
+  });
+
+  const arrowStyle = useAnimatedStyle(() => {
+    const translateX = interpolate(
+      scrollX.value,
+      lastRange,
+      [0, 6],
+      Extrapolation.CLAMP
+    );
+    return { transform: [{ translateX }] };
+  });
+
+  return (
+    <View style={styles.ctaRow}>
+      <AnimatedPressable
+        onPress={onPress}
+        style={[styles.button, containerStyle]}
+      >
+        <Animated.Text style={[styles.compactLabel, compactLabelStyle]}>
+          Next
+        </Animated.Text>
+        <Animated.Text style={[styles.buttonText, labelStyle]}>
+          Get started
+        </Animated.Text>
+        <Animated.Text style={[styles.buttonArrow, arrowStyle]}>
+          →
+        </Animated.Text>
+      </AnimatedPressable>
+    </View>
+  );
+}
+
 const styles = StyleSheet.create({
   safeArea: { backgroundColor: "#FFF9F2", flex: 1 },
-  topRow: { alignItems: "center", flexDirection: "row", justifyContent: "space-between", paddingHorizontal: 24, paddingTop: 8 },
-  brand: { color: "#E95F18", fontSize: 22, fontWeight: "900", letterSpacing: 1.5 },
-  skip: { color: "#7D6B5D", fontSize: 15, fontWeight: "700" },
-  slide: { paddingHorizontal: 24, paddingTop: 24, width },
-  artCard: { alignItems: "center", backgroundColor: "#FFE2C8", borderRadius: 40, height: "51%", justifyContent: "center", overflow: "hidden" },
-  art: { height: "112%", width: "112%" },
-  eyebrow: { color: "#E95F18", fontSize: 12, fontWeight: "900", letterSpacing: 1.2, marginTop: 30 },
-  title: { color: "#28170E", fontSize: 33, fontWeight: "900", letterSpacing: -0.8, lineHeight: 39, marginTop: 10 },
-  body: { color: "#705B4C", fontSize: 16, lineHeight: 24, marginTop: 12 },
-  bottomArea: { gap: 23, paddingHorizontal: 24, paddingVertical: 18 },
-  dots: { alignItems: "center", flexDirection: "row", gap: 8, justifyContent: "center" },
-  dot: { backgroundColor: "#E7D8C8", borderRadius: 4, height: 8, width: 8 },
-  dotActive: { backgroundColor: "#E95F18", width: 26 },
-  button: { alignItems: "center", backgroundColor: "#E95F18", borderRadius: 18, flexDirection: "row", justifyContent: "center", minHeight: 57 },
-  buttonPressed: { opacity: 0.88, transform: [{ scale: 0.985 }] },
-  buttonText: { color: "#FFFFFF", fontSize: 16, fontWeight: "800" },
-  buttonArrow: { color: "#FFFFFF", fontSize: 24, fontWeight: "600", marginLeft: 10 },
+  carousel: { flex: 1 },
+  slide: { paddingHorizontal: 28, paddingTop: 16, width },
+  artCard: {
+    alignItems: "center",
+    height: "46%",
+    justifyContent: "center",
+  },
+  artWrap: {
+    alignItems: "center",
+    height: "100%",
+    justifyContent: "center",
+    width: "100%",
+  },
+  art: { height: "100%", width: "100%" },
+  title: {
+    color: "#28170E",
+    fontFamily: OUTFIT.semibold,
+    fontSize: 30,
+    letterSpacing: -0.6,
+    lineHeight: 36,
+    marginTop: 28,
+  },
+  body: {
+    color: "#705B4C",
+    fontFamily: OUTFIT.regular,
+    fontSize: 15.5,
+    letterSpacing: 0.1,
+    lineHeight: 23,
+    marginTop: 14,
+    paddingRight: 12,
+  },
+  bottomArea: {
+    gap: 28,
+    minHeight: 132,
+    paddingBottom: 8,
+    paddingHorizontal: 28,
+    paddingTop: 12,
+  },
+  dots: {
+    alignItems: "center",
+    flexDirection: "row",
+    gap: 7,
+    justifyContent: "center",
+  },
+  dot: { borderRadius: 4, height: 8 },
+  ctaRow: { alignItems: "flex-end", width: "100%" },
+  button: {
+    alignItems: "center",
+    backgroundColor: "#E95F18",
+    flexDirection: "row",
+    gap: 8,
+    height: 56,
+    justifyContent: "center",
+  },
+  compactLabel: {
+    color: "#FFF9F4",
+    fontFamily: OUTFIT.bold,
+    fontSize: 16,
+    letterSpacing: 0.1,
+  },
+  buttonText: {
+    color: "#FFF9F4",
+    fontFamily: OUTFIT.bold,
+    fontSize: 16,
+    letterSpacing: 0.1,
+  },
+  buttonArrow: {
+    color: "#FFF9F4",
+    fontFamily: OUTFIT.bold,
+    fontSize: 16,
+  },
 });
