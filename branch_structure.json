@@ -1,0 +1,30 @@
+{
+  "default_branch": "dev",
+  "branches": [
+    "dev",
+    "feature/header-polish",
+    "feature/nativewind-refactor",
+    "fix/cart-auth-session",
+    "ft/phone-sms",
+    "main",
+    "origin"
+  ],
+  "parent": {
+    "dev": null,
+    "feature/header-polish": "dev",
+    "feature/nativewind-refactor": "dev",
+    "fix/cart-auth-session": "dev",
+    "ft/phone-sms": "dev",
+    "main": "dev",
+    "origin": "dev"
+  },
+  "order": [
+    "dev",
+    "feature/header-polish",
+    "feature/nativewind-refactor",
+    "fix/cart-auth-session",
+    "ft/phone-sms",
+    "main",
+    "origin"
+  ]
+}
