@@ -33,6 +33,9 @@ interface AuthStore {
     refreshToken: string;
   }) => Promise<void>;
 
+  /** Update the persisted user after a profile edit. */
+  updateUser: (user: AuthUser) => Promise<void>;
+
   /** Wipe everything — called on logout or token expiry. */
   clearSession: () => Promise<void>;
 }
@@ -71,6 +74,11 @@ export const useAuthStore = create<AuthStore>((set) => ({
       SecureStore.setItemAsync(KEY_USER,    JSON.stringify(user)),
     ]);
     set({ status: "authenticated", user, accessToken, refreshToken });
+  },
+
+  updateUser: async (user) => {
+    await SecureStore.setItemAsync(KEY_USER, JSON.stringify(user));
+    set({ user });
   },
 
   clearSession: async () => {

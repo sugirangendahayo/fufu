@@ -42,6 +42,7 @@ export type AuthUser = {
   lastName?: string;
   role: "CUSTOMER" | "KITCHEN_STAFF" | "RIDER" | "ADMIN";
   isActive: boolean;
+  createdAt?: string;
 };
 
 type Tokens = { accessToken: string; refreshToken: string; expiresIn: number };
@@ -60,4 +61,5 @@ export const authApi = {
     request<{ data: { user: AuthUser } & Tokens }>("/auth/verify-phone", input),
   resendCode: (input: { phone: string; channel: "sms" }) => // Pindo Verify is SMS-only
     request<{ data: { verificationRequired: boolean } }>("/auth/phone-verifications", input),
+  logout: (refreshToken: string) => request<void>("/auth/logout", { refreshToken }),
 };

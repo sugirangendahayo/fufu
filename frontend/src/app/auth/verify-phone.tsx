@@ -1,17 +1,9 @@
 import { router, useLocalSearchParams } from "expo-router";
 import { useState } from "react";
-import {
-  ActivityIndicator,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from "react-native";
+import { Pressable, ScrollView, Text, View } from "react-native";
 import { AuthShell } from "@/components/auth/auth-shell";
 import { Field, InlineError, PrimaryButton } from "@/components/auth/auth-ui";
 import { ApiError, authApi } from "@/features/auth/api";
-import { OUTFIT } from "@/theme/fonts";
 
 export default function VerifyPhoneScreen() {
   const { phone: rawPhone } = useLocalSearchParams<{ phone?: string }>();
@@ -24,10 +16,8 @@ export default function VerifyPhoneScreen() {
 
   const verify = async () => {
     setError(undefined);
-    if (!phone)
-      return setError("Your phone number is missing. Please sign up again.");
-    if (code.trim().length < 4)
-      return setError("Enter the code from your SMS.");
+    if (!phone) return setError("Your phone number is missing. Please sign up again.");
+    if (code.trim().length < 4) return setError("Enter the code from your SMS.");
     setSubmitting(true);
     try {
       const { data } = await authApi.verifyPhone({ phone, code: code.trim() });
@@ -59,22 +49,25 @@ export default function VerifyPhoneScreen() {
   return (
     <AuthShell>
       <ScrollView
-        contentContainerStyle={styles.content}
+        contentContainerClassName="grow p-6"
         keyboardShouldPersistTaps="handled"
       >
-        <Pressable onPress={() => router.back()} hitSlop={12}>
-          <Text style={styles.back}>← Back</Text>
+        <Pressable className="active:opacity-70" onPress={() => router.back()} hitSlop={12}>
+          <Text className="font-outfit-bold text-base text-[#705B4C]">← Back</Text>
         </Pressable>
-        <View style={styles.icon}>
-          <Text style={styles.iconText}>✦</Text>
+        <View className="mt-[42px] h-[60px] w-[60px] items-center justify-center rounded-[30px] bg-[#FFE2C8]">
+          <Text className="font-outfit-extrabold text-[29px] text-fufu-primary">✦</Text>
         </View>
-        <Text style={styles.eyebrow}>ONE MORE STEP</Text>
-        <Text style={styles.title}>Check your messages.</Text>
-        <Text style={styles.subtitle}>
-          We sent a 6-digit code to {phone || "your phone"}. Enter it below to
-          activate your account.
+        <Text className="mt-[27px] font-outfit-extrabold text-xs tracking-[1.2px] text-fufu-primary">
+          ONE MORE STEP
         </Text>
-        <View style={styles.form}>
+        <Text className="mt-[9px] font-outfit-extrabold text-[31px] leading-[37px] tracking-[-0.8px] text-fufu-ink">
+          Check your messages.
+        </Text>
+        <Text className="mt-2.5 font-outfit text-base leading-6 text-[#705B4C]">
+          We sent a 6-digit code to {phone || "your phone"}. Enter it below to activate your account.
+        </Text>
+        <View className="mt-8 gap-[18px]">
           <Field
             label="Verification code"
             value={code}
@@ -85,19 +78,17 @@ export default function VerifyPhoneScreen() {
             placeholder="123456"
           />
           <InlineError>{error}</InlineError>
-          {message ? <Text style={styles.message}>{message}</Text> : null}
-          <PrimaryButton disabled={submitting} onPress={verify}>
-            {submitting ? (
-              <ActivityIndicator color="#FFFFFF" />
-            ) : (
-              "Verify phone"
-            )}
+          {message ? (
+            <Text className="font-outfit text-sm leading-5 text-[#237A48]">{message}</Text>
+          ) : null}
+          <PrimaryButton disabled={submitting} loading={submitting} onPress={verify}>
+            Verify phone
           </PrimaryButton>
         </View>
-        <View style={styles.resendBox}>
-          <Text style={styles.resendText}>Didn&apos;t get a code?</Text>
-          <Pressable disabled={resending} onPress={resend} hitSlop={10}>
-            <Text style={[styles.resendLink, resending && styles.disabled]}>
+        <View className="mt-7 flex-row items-center justify-center gap-1">
+          <Text className="font-outfit text-[15px] text-[#705B4C]">Didn&apos;t get a code?</Text>
+          <Pressable disabled={resending} onPress={resend} hitSlop={10} className="active:opacity-70">
+            <Text className={`font-outfit-extrabold text-[15px] text-fufu-primary-deep ${resending ? "opacity-55" : ""}`}>
               {resending ? "Requesting…" : "Send a new code"}
             </Text>
           </Pressable>
@@ -106,68 +97,3 @@ export default function VerifyPhoneScreen() {
     </AuthShell>
   );
 }
-
-const styles = StyleSheet.create({
-  content: { flexGrow: 1, padding: 24 },
-  back: {
-    color: "#705B4C",
-    fontFamily: OUTFIT.bold,
-    fontSize: 16,
-    fontWeight: "700",
-  },
-  icon: {
-    alignItems: "center",
-    backgroundColor: "#FFE2C8",
-    borderRadius: 30,
-    height: 60,
-    justifyContent: "center",
-    marginTop: 42,
-    width: 60,
-  },
-  iconText: { color: "#E95F18", fontFamily: OUTFIT.extraBold, fontSize: 29 },
-  eyebrow: {
-    color: "#E95F18",
-    fontFamily: OUTFIT.extraBold,
-    fontSize: 12,
-    fontWeight: "900",
-    letterSpacing: 1.2,
-    marginTop: 27,
-  },
-  title: {
-    color: "#28170E",
-    fontFamily: OUTFIT.extraBold,
-    fontSize: 31,
-    fontWeight: "900",
-    letterSpacing: -0.8,
-    marginTop: 9,
-  },
-  subtitle: {
-    color: "#705B4C",
-    fontFamily: OUTFIT.regular,
-    fontSize: 16,
-    lineHeight: 24,
-    marginTop: 10,
-  },
-  form: { gap: 18, marginTop: 32 },
-  message: {
-    color: "#237A48",
-    fontFamily: OUTFIT.regular,
-    fontSize: 14,
-    lineHeight: 20,
-  },
-  resendBox: {
-    alignItems: "center",
-    flexDirection: "row",
-    gap: 5,
-    justifyContent: "center",
-    marginTop: 28,
-  },
-  resendText: { color: "#705B4C", fontFamily: OUTFIT.regular, fontSize: 15 },
-  resendLink: {
-    color: "#D84E09",
-    fontFamily: OUTFIT.extraBold,
-    fontSize: 15,
-    fontWeight: "800",
-  },
-  disabled: { opacity: 0.55 },
-});
