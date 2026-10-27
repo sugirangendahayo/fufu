@@ -1,12 +1,15 @@
 import * as Haptics from "expo-haptics";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { useAuthStore } from "@/features/auth/auth-store";
+import { cartKeys } from "@/features/cart/hooks";
 import { ApiClientError } from "@/lib/api-client";
 import type { CatalogProduct } from "@/features/catalog/types";
 import { cartApi } from "./api";
 
 export function useAddToCart() {
   const accessToken = useAuthStore((state) => state.accessToken);
+  const queryClient = useQueryClient();
   const addingRef = useRef<string | null>(null);
   const [addingId, setAddingId] = useState<string | null>(null);
   const [addedId, setAddedId] = useState<string | null>(null);
@@ -44,6 +47,9 @@ export function useAddToCart() {
           ...(variant ? { variantId: variant.id } : {}),
         });
         setAddedId(product.id);
+        void queryClient
+          .invalidateQueries({ queryKey: cartKeys.detail })
+          .catch(() => undefined);
         void Haptics.notificationAsync(
           Haptics.NotificationFeedbackType.Success,
         ).catch(() => undefined);
@@ -60,7 +66,7 @@ export function useAddToCart() {
         setAddingId(null);
       }
     },
-    [accessToken],
+    [accessToken, queryClient],
   );
 
   return {

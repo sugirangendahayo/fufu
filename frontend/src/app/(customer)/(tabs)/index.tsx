@@ -22,6 +22,7 @@ import { ProductCard } from "@/components/catalog/product-card";
 import { CustomerHeader } from "@/components/customer/customer-header";
 import { HeroCarousel } from "@/components/customer/hero-carousel";
 import { SectionHeader } from "@/components/customer/section-header";
+import { useTabBarInset } from "@/components/navigation/floating-tab-bar";
 import { useAddToCart } from "@/features/cart/use-add-to-cart";
 import {
   useCategories,
@@ -33,6 +34,7 @@ import { FUFU } from "@/theme/colors";
 
 export default function HomeScreen() {
   const firstName = useAuthStore((state) => state.user?.firstName);
+  const tabBarInset = useTabBarInset();
   const categoriesQuery = useCategories();
   const featuredQuery = useProducts({ featured: true, limit: 6 });
   const combosQuery = useCombos();
@@ -73,7 +75,10 @@ export default function HomeScreen() {
     <SafeAreaView edges={["top"]} style={styles.safeArea}>
       <StatusBar style="dark" />
       <ScrollView
-        contentContainerStyle={styles.contentContainer}
+        contentContainerStyle={[
+          styles.contentContainer,
+          { paddingBottom: tabBarInset },
+        ]}
         refreshControl={
           <RefreshControl
             onRefresh={refresh}

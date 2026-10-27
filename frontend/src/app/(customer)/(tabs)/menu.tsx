@@ -20,6 +20,7 @@ import { ProductCard } from "@/components/catalog/product-card";
 import { SearchField } from "@/components/catalog/search-field";
 import { CustomerHeader } from "@/components/customer/customer-header";
 import { SectionHeader } from "@/components/customer/section-header";
+import { useTabBarInset } from "@/components/navigation/floating-tab-bar";
 import { useAddToCart } from "@/features/cart/use-add-to-cart";
 import {
   useCategories,
@@ -29,6 +30,7 @@ import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import { FUFU } from "@/theme/colors";
 
 export default function MenuScreen() {
+  const tabBarInset = useTabBarInset();
   const params = useLocalSearchParams<{ category?: string }>();
   const selectedCategory =
     typeof params.category === "string" && params.category.length > 0
@@ -108,7 +110,7 @@ export default function MenuScreen() {
       <StatusBar style="dark" />
       <FlatList
         columnWrapperStyle={styles.column}
-        contentContainerStyle={styles.content}
+        contentContainerStyle={[styles.content, { paddingBottom: tabBarInset }]}
         data={products}
         keyExtractor={(product) => product.id}
         keyboardShouldPersistTaps="handled"
