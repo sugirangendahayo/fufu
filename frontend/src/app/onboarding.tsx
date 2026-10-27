@@ -12,10 +12,10 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import Animated, {
   interpolate,
   interpolateColor,
-  runOnJS,
   useAnimatedScrollHandler,
   useAnimatedStyle,
   useSharedValue,
+  type SharedValue,
   Extrapolation,
 } from "react-native-reanimated";
 import { OUTFIT } from "@/theme/fonts";
@@ -60,17 +60,20 @@ export default function OnboardingScreen() {
     setActive(index);
   }, []);
 
-  const onMomentumEnd = useAnimatedScrollHandler({
-    onMomentumEnd: (event) => {
-      const index = Math.round(event.contentOffset.x / width);
-      runOnJS(updateActive)(index);
+  const onMomentumEnd = useCallback(
+    (event: {
+      nativeEvent: { contentOffset: { x: number } };
+    }) => {
+      const index = Math.round(event.nativeEvent.contentOffset.x / width);
+      updateActive(index);
     },
-  });
+    [updateActive],
+  );
 
-const goTo = (index: number) => {
-  scrollRef.current?.scrollTo({ x: index * width, animated: true });
-  setActive(index);
-};
+  const goTo = (index: number) => {
+    scrollRef.current?.scrollTo({ x: index * width, animated: true });
+    setActive(index);
+  };
   const isLast = active === slides.length - 1;
 
   return (
@@ -84,7 +87,7 @@ const goTo = (index: number) => {
         bounces={false}
         scrollEventThrottle={16}
         onScroll={scrollHandler}
-        onMomentumScrollEnd={onMomentumEnd.onMomentumEnd as never}
+        onMomentumScrollEnd={onMomentumEnd}
       >
         {slides.map((slide, index) => (
           <Slide key={slide.title} slide={slide} index={index} scrollX={scrollX} />
@@ -118,7 +121,7 @@ function Slide({
 }: {
   slide: (typeof slides)[number];
   index: number;
-  scrollX: Animated.SharedValue<number>;
+  scrollX: SharedValue<number>;
 }) {
   const inputRange = [(index - 1) * width, index * width, (index + 1) * width];
 
@@ -181,7 +184,7 @@ function Dot({
   onPress,
 }: {
   index: number;
-  scrollX: Animated.SharedValue<number>;
+  scrollX: SharedValue<number>;
   onPress: () => void;
 }) {
   const inputRange = [(index - 1) * width, index * width, (index + 1) * width];
@@ -216,7 +219,7 @@ function MorphingCta({
   scrollX,
   onPress,
 }: {
-  scrollX: Animated.SharedValue<number>;
+  scrollX: SharedValue<number>;
   onPress: () => void;
 }) {
   // Progress 0 -> 1 as the user scrolls from the second-to-last slide

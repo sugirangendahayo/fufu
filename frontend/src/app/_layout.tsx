@@ -1,5 +1,6 @@
 import "../../global.css";
 
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
   Outfit_400Regular,
   Outfit_500Medium,
@@ -16,6 +17,15 @@ import { OUTFIT } from "@/theme/fonts";
 import { useAuthStore } from "@/features/auth/auth-store";
 
 void SplashScreen.preventAutoHideAsync();
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false,
+      retry: 1,
+    },
+  },
+});
 
 export default function RootLayout() {
   const [fontsLoaded, fontError] = useFonts({
@@ -46,19 +56,22 @@ export default function RootLayout() {
 
   // Already authenticated → go straight to the customer area.
   // The customer layout will handle role-based routing if needed later.
-  if (status === "authenticated") {
-    return <Redirect href={"/(customer)/(tabs)" as Href} />;
-  }
+  const navigation =
+    status === "authenticated" ? (
+      <Redirect href={"/(customer)/(tabs)" as Href} />
+    ) : (
+      <Stack screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="index" />
+        <Stack.Screen name="onboarding" />
+        <Stack.Screen name="auth" />
+        <Stack.Screen name="(customer)" />
+        <Stack.Screen name="(staff)" />
+        <Stack.Screen name="(rider)" />
+        <Stack.Screen name="(admin)" />
+      </Stack>
+    );
 
   return (
-    <Stack screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="index" />
-      <Stack.Screen name="onboarding" />
-      <Stack.Screen name="auth" />
-      <Stack.Screen name="(customer)" />
-      <Stack.Screen name="(staff)" />
-      <Stack.Screen name="(rider)" />
-      <Stack.Screen name="(admin)" />
-    </Stack>
+    <QueryClientProvider client={queryClient}>{navigation}</QueryClientProvider>
   );
 }

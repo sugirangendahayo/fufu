@@ -84,10 +84,14 @@ export function Field({
         // replaces the base input style.
         style={[styles.input, style]}
         onFocus={(event) => {
+          // Reanimated shared values are mutable by design.
+          // eslint-disable-next-line react-hooks/immutability
           focus.value = withTiming(1, TIMING);
           onFocus?.(event);
         }}
         onBlur={(event) => {
+          // Reanimated shared values are mutable by design.
+          // eslint-disable-next-line react-hooks/immutability
           focus.value = withTiming(0, TIMING);
           onBlur?.(event);
         }}

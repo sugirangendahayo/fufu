@@ -1,7 +1,6 @@
 import { router, type Href } from "expo-router";
 import { useState } from "react";
 import {
-  ActivityIndicator,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -101,12 +100,12 @@ export default function SignupScreen() {
             placeholder="At least 8 characters"
           />
           <InlineError>{error}</InlineError>
-          <PrimaryButton disabled={submitting} onPress={signup}>
-            {submitting ? (
-              <ActivityIndicator color="#FFFFFF" />
-            ) : (
-              "Create account"
-            )}
+          <PrimaryButton
+            disabled={submitting}
+            loading={submitting}
+            onPress={signup}
+          >
+            Create account
           </PrimaryButton>
           <Text style={styles.note}>
             By continuing, you agree to receive a one-time verification SMS.

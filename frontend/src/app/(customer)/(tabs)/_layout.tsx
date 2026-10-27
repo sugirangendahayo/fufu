@@ -1,16 +1,17 @@
 import { Tabs } from "expo-router";
 import { SymbolView } from "expo-symbols";
+import { FUFU } from "@/theme/colors";
 
 export default function CustomerTabsLayout() {
   return (
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: "#E85D04",
-        tabBarInactiveTintColor: "#6B7280",
+        tabBarActiveTintColor: FUFU.primary,
+        tabBarInactiveTintColor: FUFU.muted,
         tabBarStyle: {
-          backgroundColor: "#FFFFFF",
-          borderTopColor: "#E5E7EB",
+          backgroundColor: FUFU.surface,
+          borderTopColor: FUFU.line,
         },
       }}>
       <Tabs.Screen

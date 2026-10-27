@@ -1,0 +1,17 @@
+export const FUFU = {
+  background: "#FFF9F4",
+  surface: "#FFFFFF",
+  ink: "#28170E",
+  inkSoft: "#4F3B2E",
+  muted: "#806E60",
+  line: "rgba(40, 23, 14, 0.10)",
+  primary: "#E95F18",
+  primaryDeep: "#C94B0D",
+  primarySoft: "#FFF0E7",
+  butter: "#F7C35B",
+  butterSoft: "#FFF5D8",
+  sageSoft: "#EAF2E5",
+  danger: "#B42318",
+  success: "#2F7D5B",
+  white: "#FFFFFF",
+} as const;

@@ -15,7 +15,6 @@ module.exports = {
         "outfit-bold": ["Outfit_700Bold"],
         "outfit-extrabold": ["Outfit_800ExtraBold"],
       },
-
     },
   },
   plugins: [],

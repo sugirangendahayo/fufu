@@ -1,7 +1,6 @@
 import { router, useLocalSearchParams } from "expo-router";
 import { useState } from "react";
 import {
-  ActivityIndicator,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -86,12 +85,12 @@ export default function VerifyPhoneScreen() {
           />
           <InlineError>{error}</InlineError>
           {message ? <Text style={styles.message}>{message}</Text> : null}
-          <PrimaryButton disabled={submitting} onPress={verify}>
-            {submitting ? (
-              <ActivityIndicator color="#FFFFFF" />
-            ) : (
-              "Verify phone"
-            )}
+          <PrimaryButton
+            disabled={submitting}
+            loading={submitting}
+            onPress={verify}
+          >
+            Verify phone
           </PrimaryButton>
         </View>
         <View style={styles.resendBox}>
