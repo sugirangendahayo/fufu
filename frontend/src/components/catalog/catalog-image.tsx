@@ -1,10 +1,5 @@
 import { Image } from "expo-image";
 import { useState } from "react";
-import {
-  type ImageStyle,
-  type StyleProp,
-  StyleSheet,
-} from "react-native";
 import { isUsableImageUrl } from "@/utils/catalog";
 
 const fallbackImages = {
@@ -32,21 +27,20 @@ function fallbackFor(key = "") {
 
 type CatalogImageProps = {
   accessibilityLabel?: string;
+  className?: string;
   contentFit?: "contain" | "cover" | "fill" | "none" | "scale-down";
   fallbackKey?: string;
-  style?: StyleProp<ImageStyle>;
   uri?: string | null;
 };
 
 export function CatalogImage({
   accessibilityLabel,
+  className = "h-full w-full",
   contentFit = "contain",
   fallbackKey,
-  style,
   uri,
 }: CatalogImageProps) {
   const [failedUri, setFailedUri] = useState<string | null>(null);
-
   const remoteUri =
     isUsableImageUrl(uri) && failedUri !== uri ? uri : undefined;
 
@@ -54,19 +48,12 @@ export function CatalogImage({
     <Image
       accessibilityLabel={accessibilityLabel}
       cachePolicy="disk"
+      className={className}
       contentFit={contentFit}
       onError={remoteUri ? () => setFailedUri(uri ?? null) : undefined}
       recyclingKey={remoteUri ?? fallbackKey}
       source={remoteUri ?? fallbackFor(fallbackKey)}
-      style={[styles.image, style]}
       transition={180}
     />
   );
 }
-
-const styles = StyleSheet.create({
-  image: {
-    height: "100%",
-    width: "100%",
-  },
-});

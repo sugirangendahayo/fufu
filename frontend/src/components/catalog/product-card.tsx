@@ -1,7 +1,7 @@
-import { ActivityIndicator, Pressable, StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, Pressable, Text, View } from "react-native";
 import Animated, { FadeInDown } from "react-native-reanimated";
-import { FUFU } from "@/theme/colors";
 import type { CatalogProduct } from "@/features/catalog/types";
+import { FUFU } from "@/theme/colors";
 import { formatRwf, getProductPrice } from "@/utils/catalog";
 import { CatalogImage } from "./catalog-image";
 
@@ -30,30 +30,35 @@ export function ProductCard({
         .duration(420)
         .springify()
         .damping(17)}
-      style={[styles.card, compact && styles.compactCard]}
+      className={`mb-3.5 min-w-0 flex-1 overflow-hidden rounded-[22px] border border-fufu-line bg-fufu-surface shadow-lg ${compact ? "w-[178px] max-w-[188px]" : ""}`}
     >
-      <View style={styles.imageWrap}>
+      <View className="relative h-[142px] overflow-hidden rounded-t-[22px] bg-fufu-primary-soft">
         <CatalogImage
           accessibilityLabel={product.name}
+          className="h-full w-full"
           fallbackKey={product.slug}
           uri={product.imageUrl}
         />
         {product.isFeatured ? (
-          <View style={styles.featuredBadge}>
-            <Text style={styles.featuredText}>Popular</Text>
+          <View className="absolute left-2.5 top-2.5 rounded-[9px] bg-[rgba(255,255,255,0.92)] px-2 py-1">
+            <Text className="font-outfit-bold text-[11px] text-fufu-primary-deep">
+              Popular
+            </Text>
           </View>
         ) : null}
       </View>
 
-      <View style={styles.body}>
-        <Text style={styles.category} numberOfLines={1}>
+      <View className="gap-1.5 px-[13px] py-[13px]">
+        <Text numberOfLines={1} className="font-outfit-medium text-xs tracking-[0.2px] text-fufu-muted">
           {product.category?.name ?? "Fufu kitchen"}
         </Text>
-        <Text numberOfLines={2} style={styles.name}>
+        <Text numberOfLines={2} className="min-h-10 font-outfit-semibold text-base leading-5 text-fufu-ink">
           {product.name}
         </Text>
-        <View style={styles.footer}>
-          <Text style={styles.price}>{formatRwf(getProductPrice(product))}</Text>
+        <View className="mt-0.5 flex-row items-center justify-between gap-2">
+          <Text className="flex-1 font-outfit-bold text-sm text-fufu-primary-deep">
+            {formatRwf(getProductPrice(product))}
+          </Text>
           {onAdd ? (
             <Pressable
               accessibilityLabel={
@@ -61,19 +66,14 @@ export function ProductCard({
               }
               accessibilityRole="button"
               accessibilityState={{ busy: loading, disabled: soldOut || loading }}
+              className={`h-9 w-9 items-center justify-center rounded-xl ${added ? "bg-fufu-success" : soldOut ? "bg-fufu-line" : "bg-fufu-primary"} ${loading ? "opacity-70" : ""} active:scale-95 active:opacity-80`}
               disabled={soldOut || loading}
               onPress={() => onAdd(product)}
-              style={({ pressed }) => [
-                styles.addButton,
-                added && styles.addedButton,
-                soldOut && styles.soldOutButton,
-                pressed && !soldOut && styles.addButtonPressed,
-              ]}
             >
               {loading ? (
                 <ActivityIndicator color={FUFU.white} size="small" />
               ) : (
-                <Text style={[styles.addText, added && styles.addTextAdded]}>
+                <Text className={`font-outfit-bold text-[23px] leading-[25px] ${added ? "text-[18px] text-fufu-white" : "text-fufu-white"}`}>
                   {soldOut ? "—" : added ? "✓" : "+"}
                 </Text>
               )}
@@ -84,103 +84,3 @@ export function ProductCard({
     </Animated.View>
   );
 }
-
-const styles = StyleSheet.create({
-  card: {
-    backgroundColor: FUFU.surface,
-    borderColor: FUFU.line,
-    borderRadius: 22,
-    borderWidth: 1,
-    flex: 1,
-    marginBottom: 14,
-    minWidth: 0,
-    overflow: "hidden",
-    shadowColor: FUFU.ink,
-    shadowOffset: { height: 8, width: 0 },
-    shadowOpacity: 0.06,
-    shadowRadius: 18,
-    elevation: 2,
-  },
-  compactCard: {
-    maxWidth: 188,
-    width: 178,
-  },
-  imageWrap: {
-    backgroundColor: FUFU.primarySoft,
-    height: 142,
-    overflow: "hidden",
-    position: "relative",
-  },
-  featuredBadge: {
-    backgroundColor: "rgba(255, 255, 255, 0.92)",
-    borderRadius: 9,
-    left: 10,
-    paddingHorizontal: 8,
-    paddingVertical: 5,
-    position: "absolute",
-    top: 10,
-  },
-  featuredText: {
-    color: FUFU.primaryDeep,
-    fontFamily: "Outfit_700Bold",
-    fontSize: 11,
-  },
-  body: {
-    gap: 5,
-    paddingHorizontal: 13,
-    paddingVertical: 13,
-  },
-  category: {
-    color: FUFU.muted,
-    fontFamily: "Outfit_500Medium",
-    fontSize: 12,
-    letterSpacing: 0.2,
-  },
-  name: {
-    color: FUFU.ink,
-    fontFamily: "Outfit_600SemiBold",
-    fontSize: 16,
-    lineHeight: 20,
-    minHeight: 40,
-  },
-  footer: {
-    alignItems: "center",
-    flexDirection: "row",
-    gap: 8,
-    justifyContent: "space-between",
-    marginTop: 3,
-  },
-  price: {
-    color: FUFU.primaryDeep,
-    flex: 1,
-    fontFamily: "Outfit_700Bold",
-    fontSize: 14,
-  },
-  addButton: {
-    alignItems: "center",
-    backgroundColor: FUFU.primary,
-    borderRadius: 12,
-    height: 36,
-    justifyContent: "center",
-    width: 36,
-  },
-  addButtonPressed: {
-    opacity: 0.82,
-    transform: [{ scale: 0.94 }],
-  },
-  addedButton: {
-    backgroundColor: FUFU.success,
-  },
-  soldOutButton: {
-    backgroundColor: FUFU.line,
-  },
-  addText: {
-    color: FUFU.white,
-    fontFamily: "Outfit_700Bold",
-    fontSize: 23,
-    lineHeight: 25,
-  },
-  addTextAdded: {
-    fontSize: 18,
-  },
-});

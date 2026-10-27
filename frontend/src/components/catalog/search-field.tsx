@@ -1,5 +1,5 @@
 import { SymbolView } from "expo-symbols";
-import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
+import { Pressable, Text, TextInput, View } from "react-native";
 import { FUFU } from "@/theme/colors";
 
 type SearchFieldProps = {
@@ -14,7 +14,7 @@ export function SearchField({
   value,
 }: SearchFieldProps) {
   return (
-    <View style={styles.field}>
+    <View className="min-h-[54px] flex-row items-center gap-2.5 rounded-2xl border border-fufu-line bg-fufu-surface px-4">
       <SymbolView
         name={{ android: "search", ios: "magnifyingglass", web: "search" }}
         size={20}
@@ -23,60 +23,27 @@ export function SearchField({
       <TextInput
         accessibilityLabel="Search menu"
         autoCorrect={false}
+        className="flex-1 py-1 font-outfit text-base text-fufu-ink"
         clearButtonMode="never"
         onChangeText={onChangeText}
         placeholder={placeholder}
         placeholderTextColor={FUFU.muted}
         returnKeyType="search"
-        style={styles.input}
         value={value}
       />
       {value.length > 0 ? (
         <Pressable
           accessibilityLabel="Clear search"
           accessibilityRole="button"
+          className="h-7 w-7 items-center justify-center rounded-[10px] bg-fufu-primary-soft active:opacity-70"
           hitSlop={10}
           onPress={() => onChangeText("")}
-          style={styles.clear}
         >
-          <Text style={styles.clearText}>×</Text>
+          <Text className="font-outfit-medium text-[22px] leading-6 text-fufu-primary-deep">
+            ×
+          </Text>
         </Pressable>
       ) : null}
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  field: {
-    alignItems: "center",
-    backgroundColor: FUFU.surface,
-    borderColor: FUFU.line,
-    borderRadius: 16,
-    borderWidth: 1,
-    flexDirection: "row",
-    gap: 10,
-    minHeight: 54,
-    paddingHorizontal: 16,
-  },
-  input: {
-    color: FUFU.ink,
-    flex: 1,
-    fontFamily: "Outfit_400Regular",
-    fontSize: 16,
-    paddingVertical: 4,
-  },
-  clear: {
-    alignItems: "center",
-    backgroundColor: FUFU.primarySoft,
-    borderRadius: 10,
-    height: 28,
-    justifyContent: "center",
-    width: 28,
-  },
-  clearText: {
-    color: FUFU.primaryDeep,
-    fontFamily: "Outfit_500Medium",
-    fontSize: 22,
-    lineHeight: 24,
-  },
-});

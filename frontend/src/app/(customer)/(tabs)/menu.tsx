@@ -1,13 +1,7 @@
 import { router, useLocalSearchParams, type Href } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { useCallback, useState } from "react";
-import {
-  FlatList,
-  RefreshControl,
-  StyleSheet,
-  Text,
-  View,
-} from "react-native";
+import { FlatList, RefreshControl, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { CategoryRail } from "@/components/catalog/category-rail";
 import {
@@ -22,10 +16,7 @@ import { CustomerHeader } from "@/components/customer/customer-header";
 import { SectionHeader } from "@/components/customer/section-header";
 import { useTabBarInset } from "@/components/navigation/floating-tab-bar";
 import { useAddToCart } from "@/features/cart/use-add-to-cart";
-import {
-  useCategories,
-  useProducts,
-} from "@/features/catalog/hooks";
+import { useCategories, useProducts } from "@/features/catalog/hooks";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import { FUFU } from "@/theme/colors";
 
@@ -63,18 +54,22 @@ export default function MenuScreen() {
   const refreshing = categoriesQuery.isRefetching || productsQuery.isRefetching;
 
   const header = (
-    <View style={styles.listHeader}>
-      <View style={styles.titleBlock}>
-        <Text style={styles.eyebrow}>THE FUFU MENU</Text>
-        <Text style={styles.title}>Find your next favourite.</Text>
-        <Text style={styles.subtitle}>
+    <View className="gap-[22px] pb-5 pt-[25px]">
+      <View className="gap-1.5">
+        <Text className="font-outfit-bold text-[11px] tracking-[1.5px] text-fufu-primary-deep">
+          THE FUFU MENU
+        </Text>
+        <Text className="font-outfit-bold text-[30px] leading-9 tracking-[-0.8px] text-fufu-ink">
+          Find your next favourite.
+        </Text>
+        <Text className="font-outfit text-[15px] leading-[21px] text-fufu-muted">
           Take your time. There&apos;s something good in every category.
         </Text>
       </View>
 
       <SearchField onChangeText={setSearch} value={search} />
 
-      <View style={styles.categorySection}>
+      <View className="gap-[13px]">
         <SectionHeader title="Categories" />
         {categoriesQuery.isPending ? (
           <CatalogLoading label="Loading categories…" />
@@ -93,10 +88,10 @@ export default function MenuScreen() {
         )}
       </View>
 
-      <View style={styles.resultHeading}>
+      <View className="flex-row items-center justify-between">
         <SectionHeader title={search ? "Search results" : "All favourites"} />
         {!productsQuery.isPending && !productsQuery.isError ? (
-          <Text style={styles.resultCount}>
+          <Text className="font-outfit text-[13px] text-fufu-muted">
             {total} {total === 1 ? "item" : "items"}
           </Text>
         ) : null}
@@ -106,11 +101,12 @@ export default function MenuScreen() {
   );
 
   return (
-    <SafeAreaView edges={["top"]} style={styles.safeArea}>
+    <SafeAreaView className="flex-1 bg-fufu-bg" edges={["top"]}>
       <StatusBar style="dark" />
       <FlatList
-        columnWrapperStyle={styles.column}
-        contentContainerStyle={[styles.content, { paddingBottom: tabBarInset }]}
+        columnWrapperClassName="gap-3"
+        contentContainerClassName="px-5"
+        contentContainerStyle={{ paddingBottom: tabBarInset }}
         data={products}
         keyExtractor={(product) => product.id}
         keyboardShouldPersistTaps="handled"
@@ -160,57 +156,3 @@ export default function MenuScreen() {
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  safeArea: {
-    backgroundColor: FUFU.background,
-    flex: 1,
-  },
-  content: {
-    paddingBottom: 104,
-    paddingHorizontal: 20,
-  },
-  listHeader: {
-    gap: 22,
-    paddingBottom: 20,
-    paddingTop: 25,
-  },
-  titleBlock: {
-    gap: 6,
-  },
-  eyebrow: {
-    color: FUFU.primaryDeep,
-    fontFamily: "Outfit_700Bold",
-    fontSize: 11,
-    letterSpacing: 1.5,
-  },
-  title: {
-    color: FUFU.ink,
-    fontFamily: "Outfit_700Bold",
-    fontSize: 30,
-    letterSpacing: -0.8,
-    lineHeight: 36,
-  },
-  subtitle: {
-    color: FUFU.muted,
-    fontFamily: "Outfit_400Regular",
-    fontSize: 15,
-    lineHeight: 21,
-  },
-  categorySection: {
-    gap: 13,
-  },
-  resultHeading: {
-    alignItems: "center",
-    flexDirection: "row",
-    justifyContent: "space-between",
-  },
-  resultCount: {
-    color: FUFU.muted,
-    fontFamily: "Outfit_400Regular",
-    fontSize: 13,
-  },
-  column: {
-    gap: 12,
-  },
-});

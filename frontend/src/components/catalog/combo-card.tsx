@@ -1,5 +1,4 @@
-import { Pressable, StyleSheet, Text, View } from "react-native";
-import { FUFU } from "@/theme/colors";
+import { Pressable, Text, View } from "react-native";
 import type { CatalogCombo } from "@/features/catalog/types";
 import { formatRwf } from "@/utils/catalog";
 import { CatalogImage } from "./catalog-image";
@@ -14,79 +13,37 @@ export function ComboCard({ combo, onPress }: ComboCardProps) {
     <Pressable
       accessibilityLabel={`${combo.name} combo`}
       accessibilityRole={onPress ? "button" : undefined}
+      className="min-h-[170px] w-[300px] flex-row overflow-hidden rounded-3xl bg-fufu-ink active:opacity-90 active:scale-[0.99]"
       disabled={!onPress}
       onPress={() => onPress?.(combo)}
-      style={({ pressed }) => [styles.card, pressed && styles.pressed]}
     >
-      <View style={styles.imageWrap}>
+      <View className="w-[126px] self-stretch bg-[#442A1D]">
         <CatalogImage
           accessibilityLabel={combo.name}
+          className="h-full w-full"
           fallbackKey={combo.slug}
           uri={combo.imageUrl}
         />
       </View>
-      <View style={styles.copy}>
-        <Text style={styles.kicker}>FUFU COMBO</Text>
-        <Text numberOfLines={1} style={styles.name}>
+      <View className="flex-1 justify-center gap-1.5 px-4 py-[17px]">
+        <Text className="font-outfit-bold text-[10px] tracking-[1.1px] text-fufu-butter">
+          FUFU COMBO
+        </Text>
+        <Text numberOfLines={1} className="font-outfit-bold text-xl text-fufu-white">
           {combo.name}
         </Text>
         {combo.description ? (
-          <Text numberOfLines={2} style={styles.description}>
+          <Text
+            numberOfLines={2}
+            className="font-outfit text-xs leading-[17px] text-[rgba(255,255,255,0.70)]"
+          >
             {combo.description}
           </Text>
         ) : null}
-        <Text style={styles.price}>{formatRwf(combo.price)}</Text>
+        <Text className="mt-0.5 font-outfit-bold text-[15px] text-fufu-white">
+          {formatRwf(combo.price)}
+        </Text>
       </View>
     </Pressable>
   );
 }
-
-const styles = StyleSheet.create({
-  card: {
-    backgroundColor: FUFU.ink,
-    borderRadius: 24,
-    flexDirection: "row",
-    minHeight: 170,
-    overflow: "hidden",
-    width: 300,
-  },
-  pressed: {
-    opacity: 0.9,
-    transform: [{ scale: 0.99 }],
-  },
-  imageWrap: {
-    alignSelf: "stretch",
-    backgroundColor: "#442A1D",
-    width: 126,
-  },
-  copy: {
-    flex: 1,
-    gap: 6,
-    justifyContent: "center",
-    paddingHorizontal: 16,
-    paddingVertical: 17,
-  },
-  kicker: {
-    color: FUFU.butter,
-    fontFamily: "Outfit_700Bold",
-    fontSize: 10,
-    letterSpacing: 1.1,
-  },
-  name: {
-    color: FUFU.white,
-    fontFamily: "Outfit_700Bold",
-    fontSize: 20,
-  },
-  description: {
-    color: "rgba(255, 255, 255, 0.70)",
-    fontFamily: "Outfit_400Regular",
-    fontSize: 12,
-    lineHeight: 17,
-  },
-  price: {
-    color: FUFU.white,
-    fontFamily: "Outfit_700Bold",
-    fontSize: 15,
-    marginTop: 3,
-  },
-});

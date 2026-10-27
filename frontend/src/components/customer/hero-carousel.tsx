@@ -1,6 +1,6 @@
 import { Image } from "expo-image";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Pressable, StyleSheet, Text, useWindowDimensions, View } from "react-native";
+import { Pressable, Text, useWindowDimensions, View } from "react-native";
 import Animated, {
   Extrapolation,
   interpolate,
@@ -9,7 +9,6 @@ import Animated, {
   useSharedValue,
   type SharedValue,
 } from "react-native-reanimated";
-import { FUFU } from "@/theme/colors";
 
 const heroSlides = [
   {
@@ -67,15 +66,13 @@ export function HeroCarousel({ onExplore }: HeroCarouselProps) {
   });
 
   return (
-    <View style={styles.wrapper}>
+    <View className="gap-[13px]">
       <Animated.ScrollView
-        contentContainerStyle={styles.scrollContent}
+        contentContainerClassName="gap-0"
         decelerationRate="fast"
         horizontal
         onMomentumScrollEnd={(event) => {
-          const index = Math.round(
-            event.nativeEvent.contentOffset.x / cardWidth,
-          );
+          const index = Math.round(event.nativeEvent.contentOffset.x / cardWidth);
           setActiveIndex(Math.min(index, heroSlides.length - 1));
         }}
         onScroll={onScroll}
@@ -95,21 +92,22 @@ export function HeroCarousel({ onExplore }: HeroCarouselProps) {
           />
         ))}
       </Animated.ScrollView>
-      <View style={styles.pagination}>
-        <View style={styles.dots}>
+      <View className="flex-row items-center justify-between px-[3px]">
+        <View className="flex-row items-center gap-1.5">
           {heroSlides.map((slide, index) => (
             <Pressable
               accessibilityLabel={`Show hero ${index + 1}`}
               accessibilityRole="button"
+              className={`h-1.5 rounded-[3px] ${activeIndex === index ? "w-[22px] bg-fufu-primary" : "w-1.5 bg-[#E4D5C8]"} active:opacity-70`}
               hitSlop={8}
               key={slide.accent}
               onPress={() => goTo(index)}
-              style={[styles.dot, activeIndex === index && styles.activeDot]}
             />
           ))}
         </View>
-        <Text style={styles.counter}>
-          0{activeIndex + 1} <Text style={styles.counterMuted}>/ 0{heroSlides.length}</Text>
+        <Text className="font-outfit-bold text-xs text-fufu-ink-soft">
+          0{activeIndex + 1}{" "}
+          <Text className="font-outfit text-fufu-muted">/ 0{heroSlides.length}</Text>
         </Text>
       </View>
     </View>
@@ -177,150 +175,39 @@ function HeroSlide({
 
   return (
     <View
-      style={[
-        styles.slide,
-        {
-          backgroundColor: slide.background,
-          width: cardWidth,
-        },
-      ]}
+      className="relative h-[220px] overflow-hidden rounded-[28px] pl-5"
+      style={{ backgroundColor: slide.background, width: cardWidth }}
     >
-      <Animated.View style={[styles.copy, copyStyle]}>
-        <Text style={styles.accent}>{slide.accent}</Text>
-        <Text style={styles.title}>{slide.title}</Text>
+      <Animated.View className="z-[2] w-[58%] self-start justify-center gap-2 pt-2.5" style={copyStyle}>
+        <Text className="font-outfit-bold text-[10px] tracking-[1.4px] text-fufu-primary-deep">
+          {slide.accent}
+        </Text>
+        <Text className="font-outfit-bold text-[27px] leading-[30px] tracking-[-0.7px] text-fufu-ink">
+          {slide.title}
+        </Text>
         <Pressable
           accessibilityRole="button"
+          className="mt-[5px] self-start flex-row items-center gap-2 rounded-xl bg-fufu-ink px-[13px] py-2.5 active:opacity-80 active:scale-[0.97]"
           onPress={onExplore}
-          style={({ pressed }) => [styles.cta, pressed && styles.ctaPressed]}
         >
-          <Text style={styles.ctaText}>Explore menu</Text>
-          <Text style={styles.ctaArrow}>↗</Text>
+          <Text className="font-outfit-semibold text-xs text-fufu-white">Explore menu</Text>
+          <Text className="font-outfit-bold text-[15px] text-fufu-butter">↗</Text>
         </Pressable>
       </Animated.View>
-      <Animated.View style={[styles.art, imageStyle]}>
+      <Animated.View
+        className="absolute bottom-[-10px] right-[-25px] z-[1] h-[210px] w-[57%]"
+        style={imageStyle}
+      >
         <Image
           accessibilityLabel={slide.title.replace("\n", " ")}
           allowDownscaling
+          className="h-full w-full"
           contentFit="contain"
           source={slide.image}
-          style={styles.artImage}
           transition={300}
         />
       </Animated.View>
-      <View style={styles.glow} />
+      <View className="absolute right-[30px] top-[-70px] h-40 w-40 rounded-[100px] bg-[rgba(255,255,255,0.24)]" />
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  wrapper: {
-    gap: 13,
-  },
-  scrollContent: {
-    gap: 0,
-  },
-  slide: {
-    borderRadius: 28,
-    height: 220,
-    overflow: "hidden",
-    paddingLeft: 20,
-    position: "relative",
-  },
-  copy: {
-    alignSelf: "flex-start",
-    gap: 8,
-    justifyContent: "center",
-    paddingTop: 10,
-    width: "58%",
-    zIndex: 2,
-  },
-  accent: {
-    color: FUFU.primaryDeep,
-    fontFamily: "Outfit_700Bold",
-    fontSize: 10,
-    letterSpacing: 1.4,
-  },
-  title: {
-    color: FUFU.ink,
-    fontFamily: "Outfit_700Bold",
-    fontSize: 27,
-    letterSpacing: -0.7,
-    lineHeight: 30,
-  },
-  cta: {
-    alignItems: "center",
-    alignSelf: "flex-start",
-    backgroundColor: FUFU.ink,
-    borderRadius: 12,
-    flexDirection: "row",
-    gap: 8,
-    marginTop: 5,
-    paddingHorizontal: 13,
-    paddingVertical: 10,
-  },
-  ctaPressed: {
-    opacity: 0.8,
-    transform: [{ scale: 0.97 }],
-  },
-  ctaText: {
-    color: FUFU.white,
-    fontFamily: "Outfit_600SemiBold",
-    fontSize: 12,
-  },
-  ctaArrow: {
-    color: FUFU.butter,
-    fontFamily: "Outfit_700Bold",
-    fontSize: 15,
-  },
-  art: {
-    bottom: -10,
-    height: 210,
-    position: "absolute",
-    right: -25,
-    width: "57%",
-    zIndex: 1,
-  },
-  artImage: {
-    height: "100%",
-    width: "100%",
-  },
-  glow: {
-    backgroundColor: "rgba(255, 255, 255, 0.24)",
-    borderRadius: 100,
-    height: 160,
-    position: "absolute",
-    right: 30,
-    top: -70,
-    width: 160,
-  },
-  pagination: {
-    alignItems: "center",
-    flexDirection: "row",
-    justifyContent: "space-between",
-    paddingHorizontal: 3,
-  },
-  dots: {
-    alignItems: "center",
-    flexDirection: "row",
-    gap: 6,
-  },
-  dot: {
-    backgroundColor: "#E4D5C8",
-    borderRadius: 3,
-    height: 6,
-    width: 6,
-  },
-  activeDot: {
-    backgroundColor: FUFU.primary,
-    width: 22,
-  },
-  counter: {
-    color: FUFU.inkSoft,
-    fontFamily: "Outfit_700Bold",
-    fontSize: 12,
-  },
-  counterMuted: {
-    color: FUFU.muted,
-    fontFamily: "Outfit_400Regular",
-  },
-});

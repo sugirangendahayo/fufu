@@ -1,48 +1,22 @@
-import { StyleSheet, Text, View } from "react-native";
+import { Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { OUTFIT } from "@/theme/fonts";
 
 type ScreenPlaceholderProps = {
   title: string;
   description: string;
 };
 
-/** Shared presentation for the temporary customer tab placeholders only. */
+/** Shared presentation for the temporary staff/admin placeholders. */
 export function ScreenPlaceholder({
   title,
   description,
 }: ScreenPlaceholderProps) {
   return (
-    <SafeAreaView edges={["top"]} style={styles.safeArea}>
-      <View style={styles.content}>
-        <Text style={styles.title}>{title}</Text>
-        <Text style={styles.description}>{description}</Text>
+    <SafeAreaView className="flex-1 bg-fufu-bg" edges={["top"]}>
+      <View className="flex-1 justify-center p-6">
+        <Text className="mb-3 font-outfit-bold text-[32px] text-fufu-ink">{title}</Text>
+        <Text className="font-outfit text-[17px] leading-[26px] text-fufu-ink-soft">{description}</Text>
       </View>
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: "#FFF9F4",
-  },
-  content: {
-    flex: 1,
-    justifyContent: "center",
-    padding: 24,
-  },
-  title: {
-    color: "#1F2937",
-    fontFamily: OUTFIT.bold,
-    fontSize: 32,
-    fontWeight: "700",
-    marginBottom: 12,
-  },
-  description: {
-    color: "#4B5563",
-    fontFamily: OUTFIT.regular,
-    fontSize: 17,
-    lineHeight: 26,
-  },
-});

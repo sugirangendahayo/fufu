@@ -1,4 +1,4 @@
-import { ActivityIndicator, Pressable, StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, Pressable, Text, View } from "react-native";
 import Animated, { FadeInDown } from "react-native-reanimated";
 import { CatalogImage } from "@/components/catalog/catalog-image";
 import type { CartItem } from "@/features/cart/types";
@@ -43,89 +43,83 @@ export function CartItemCard({
         .duration(420)
         .springify()
         .damping(17)}
-      style={styles.card}
+      className="min-h-[126px] flex-row gap-3 rounded-[22px] border border-fufu-line bg-fufu-surface p-[11px]"
     >
-      <View style={styles.imageWrap}>
+      <View className="h-[102px] w-[102px] overflow-hidden rounded-2xl bg-fufu-primary-soft">
         <CatalogImage
           accessibilityLabel={item.product.name}
+          className="h-full w-full"
           fallbackKey={item.product.slug}
           uri={item.product.imageUrl}
         />
       </View>
 
-      <View style={styles.body}>
-        <View style={styles.heading}>
-          <View style={styles.copy}>
-            <Text numberOfLines={2} style={styles.name}>
+      <View className="min-w-0 flex-1 justify-between gap-2">
+        <View className="flex-row items-start justify-between gap-1.5">
+          <View className="min-w-0 flex-1 gap-[3px]">
+            <Text numberOfLines={2} className="font-outfit-semibold text-base leading-5 text-fufu-ink">
               {item.product.name}
             </Text>
-            <Text numberOfLines={1} style={styles.variant}>
+            <Text numberOfLines={1} className="font-outfit text-xs text-fufu-muted">
               {item.variant?.name ?? "Regular"}
             </Text>
           </View>
           <Pressable
             accessibilityLabel={`Remove ${item.product.name}`}
             accessibilityRole="button"
+            className={`h-7 w-7 items-center justify-center ${busy ? "opacity-35" : ""} active:opacity-65 active:scale-90`}
             disabled={busy}
             hitSlop={8}
             onPress={onRemove}
-            style={({ pressed }) => [
-              styles.remove,
-              busy && styles.disabled,
-              pressed && styles.pressed,
-            ]}
           >
-            <Text style={styles.removeText}>×</Text>
+            <Text className="font-outfit text-[25px] leading-[25px] text-fufu-muted">×</Text>
           </Pressable>
         </View>
 
         {stockMessage ? (
-          <Text style={styles.stockMessage}>{stockMessage}</Text>
+          <Text className="font-outfit-medium text-[11px] text-fufu-danger">{stockMessage}</Text>
         ) : null}
 
-        <View style={styles.footer}>
+        <View className="flex-row items-end justify-between">
           <View>
-            <Text style={styles.unitPrice}>{formatRwf(item.unitPrice)}</Text>
-            <Text style={styles.lineTotal}>{formatRwf(item.lineTotal)}</Text>
+            <Text className="font-outfit-bold text-[13px] text-fufu-primary-deep">
+              {formatRwf(item.unitPrice)}
+            </Text>
+            <Text className="mt-0.5 font-outfit text-[11px] text-fufu-muted">
+              {formatRwf(item.lineTotal)}
+            </Text>
           </View>
-          <View style={styles.quantityControl}>
+          <View className="flex-row items-center gap-[3px] rounded-[13px] bg-fufu-primary-soft p-[3px]">
             <Pressable
               accessibilityLabel={`Decrease ${item.product.name} quantity`}
               accessibilityRole="button"
-              accessibilityState={{
-                disabled: busy || item.quantity <= 1,
-              }}
+              accessibilityState={{ disabled: busy || item.quantity <= 1 }}
+              className={`h-[30px] w-[30px] items-center justify-center rounded-[10px] ${busy || item.quantity <= 1 ? "opacity-35" : ""} active:opacity-65 active:scale-90`}
               disabled={busy || item.quantity <= 1}
               hitSlop={4}
               onPress={onDecrease}
-              style={({ pressed }) => [
-                styles.quantityButton,
-                (busy || item.quantity <= 1) && styles.disabled,
-                pressed && styles.pressed,
-              ]}
             >
-              <Text style={styles.quantityButtonText}>−</Text>
+              <Text className="font-outfit-semibold text-xl leading-[22px] text-fufu-primary-deep">−</Text>
             </Pressable>
-            <Text accessibilityLabel={`Quantity ${item.quantity}`} style={styles.quantity}>
+            <Text
+              accessibilityLabel={`Quantity ${item.quantity}`}
+              className="min-w-5 text-center font-outfit-bold text-sm text-fufu-ink"
+            >
               {item.quantity}
             </Text>
             <Pressable
               accessibilityLabel={`Increase ${item.product.name} quantity`}
               accessibilityRole="button"
               accessibilityState={{ disabled: !canIncrease }}
+              className={`h-[30px] w-[30px] items-center justify-center rounded-[10px] ${!canIncrease ? "opacity-35" : ""} active:opacity-65 active:scale-90`}
               disabled={!canIncrease}
               hitSlop={4}
               onPress={onIncrease}
-              style={({ pressed }) => [
-                styles.quantityButton,
-                !canIncrease && styles.disabled,
-                pressed && styles.pressed,
-              ]}
             >
               {busy ? (
                 <ActivityIndicator color={FUFU.primary} size="small" />
               ) : (
-                <Text style={styles.quantityButtonText}>+</Text>
+                <Text className="font-outfit-semibold text-xl leading-[22px] text-fufu-primary-deep">+</Text>
               )}
             </Pressable>
           </View>
@@ -134,119 +128,3 @@ export function CartItemCard({
     </Animated.View>
   );
 }
-
-const styles = StyleSheet.create({
-  card: {
-    backgroundColor: FUFU.surface,
-    borderColor: FUFU.line,
-    borderRadius: 22,
-    borderWidth: 1,
-    flexDirection: "row",
-    gap: 12,
-    minHeight: 126,
-    padding: 11,
-  },
-  imageWrap: {
-    backgroundColor: FUFU.primarySoft,
-    borderRadius: 16,
-    height: 102,
-    overflow: "hidden",
-    width: 102,
-  },
-  body: {
-    flex: 1,
-    gap: 8,
-    justifyContent: "space-between",
-    minWidth: 0,
-  },
-  heading: {
-    alignItems: "flex-start",
-    flexDirection: "row",
-    gap: 6,
-    justifyContent: "space-between",
-  },
-  copy: {
-    flex: 1,
-    gap: 3,
-    minWidth: 0,
-  },
-  name: {
-    color: FUFU.ink,
-    fontFamily: "Outfit_600SemiBold",
-    fontSize: 16,
-    lineHeight: 20,
-  },
-  variant: {
-    color: FUFU.muted,
-    fontFamily: "Outfit_400Regular",
-    fontSize: 12,
-  },
-  remove: {
-    alignItems: "center",
-    height: 28,
-    justifyContent: "center",
-    width: 28,
-  },
-  removeText: {
-    color: FUFU.muted,
-    fontFamily: "Outfit_400Regular",
-    fontSize: 25,
-    lineHeight: 25,
-  },
-  footer: {
-    alignItems: "flex-end",
-    flexDirection: "row",
-    justifyContent: "space-between",
-  },
-  unitPrice: {
-    color: FUFU.primaryDeep,
-    fontFamily: "Outfit_700Bold",
-    fontSize: 13,
-  },
-  lineTotal: {
-    color: FUFU.muted,
-    fontFamily: "Outfit_400Regular",
-    fontSize: 11,
-    marginTop: 2,
-  },
-  quantityControl: {
-    alignItems: "center",
-    backgroundColor: FUFU.primarySoft,
-    borderRadius: 13,
-    flexDirection: "row",
-    gap: 3,
-    padding: 3,
-  },
-  quantityButton: {
-    alignItems: "center",
-    borderRadius: 10,
-    height: 30,
-    justifyContent: "center",
-    width: 30,
-  },
-  quantityButtonText: {
-    color: FUFU.primaryDeep,
-    fontFamily: "Outfit_600SemiBold",
-    fontSize: 20,
-    lineHeight: 22,
-  },
-  quantity: {
-    color: FUFU.ink,
-    fontFamily: "Outfit_700Bold",
-    fontSize: 14,
-    minWidth: 20,
-    textAlign: "center",
-  },
-  stockMessage: {
-    color: FUFU.danger,
-    fontFamily: "Outfit_500Medium",
-    fontSize: 11,
-  },
-  disabled: {
-    opacity: 0.35,
-  },
-  pressed: {
-    opacity: 0.65,
-    transform: [{ scale: 0.92 }],
-  },
-});

@@ -1,24 +1,17 @@
 import { Image } from "expo-image";
 import { router, type Href } from "expo-router";
 import { useCallback, useRef, useState } from "react";
-import {
-  Dimensions,
-  Pressable,
-  StyleSheet,
-  Text,
-  View,
-} from "react-native";
+import { Dimensions, Pressable, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Animated, {
+  Extrapolation,
   interpolate,
   interpolateColor,
   useAnimatedScrollHandler,
   useAnimatedStyle,
   useSharedValue,
   type SharedValue,
-  Extrapolation,
 } from "react-native-reanimated";
-import { OUTFIT } from "@/theme/fonts";
 
 const { width } = Dimensions.get("window");
 
@@ -61,9 +54,7 @@ export default function OnboardingScreen() {
   }, []);
 
   const onMomentumEnd = useCallback(
-    (event: {
-      nativeEvent: { contentOffset: { x: number } };
-    }) => {
+    (event: { nativeEvent: { contentOffset: { x: number } } }) => {
       const index = Math.round(event.nativeEvent.contentOffset.x / width);
       updateActive(index);
     },
@@ -77,10 +68,10 @@ export default function OnboardingScreen() {
   const isLast = active === slides.length - 1;
 
   return (
-    <SafeAreaView style={styles.safeArea} edges={["top", "bottom"]}>
+    <SafeAreaView className="flex-1 bg-[#FFF9F2]" edges={["top", "bottom"]}>
       <Animated.ScrollView
         ref={scrollRef}
-        style={styles.carousel}
+        className="flex-1"
         horizontal
         pagingEnabled
         showsHorizontalScrollIndicator={false}
@@ -94,8 +85,8 @@ export default function OnboardingScreen() {
         ))}
       </Animated.ScrollView>
 
-      <View style={styles.bottomArea}>
-        <View style={styles.dots}>
+      <View className="min-h-[132px] gap-7 px-7 pb-2 pt-3">
+        <View className="flex-row items-center justify-center gap-[7px]">
           {slides.map((_, index) => (
             <Dot key={index} index={index} scrollX={scrollX} onPress={() => goTo(index)} />
           ))}
@@ -103,11 +94,7 @@ export default function OnboardingScreen() {
 
         <MorphingCta
           scrollX={scrollX}
-          onPress={() =>
-            isLast
-              ? router.replace("/auth/login" as Href)
-              : goTo(active + 1)
-          }
+          onPress={() => (isLast ? router.replace("/auth/login" as Href) : goTo(active + 1))}
         />
       </View>
     </SafeAreaView>
@@ -124,55 +111,38 @@ function Slide({
   scrollX: SharedValue<number>;
 }) {
   const inputRange = [(index - 1) * width, index * width, (index + 1) * width];
-
-  const imageStyle = useAnimatedStyle(() => {
-    const translateX = interpolate(
-      scrollX.value,
-      inputRange,
-      [width * 0.22, 0, -width * 0.22],
-      Extrapolation.CLAMP
-    );
-    const scale = interpolate(
-      scrollX.value,
-      inputRange,
-      [0.82, 1, 0.82],
-      Extrapolation.CLAMP
-    );
-    const opacity = interpolate(
-      scrollX.value,
-      inputRange,
-      [0, 1, 0],
-      Extrapolation.CLAMP
-    );
-    return { transform: [{ translateX }, { scale }], opacity };
-  });
-
-  const textStyle = useAnimatedStyle(() => {
-    const translateY = interpolate(
-      scrollX.value,
-      inputRange,
-      [18, 0, 18],
-      Extrapolation.CLAMP
-    );
-    const opacity = interpolate(
-      scrollX.value,
-      inputRange,
-      [0, 1, 0],
-      Extrapolation.CLAMP
-    );
-    return { transform: [{ translateY }], opacity };
-  });
+  const imageStyle = useAnimatedStyle(() => ({
+    transform: [
+      {
+        translateX: interpolate(scrollX.value, inputRange, [width * 0.22, 0, -width * 0.22], Extrapolation.CLAMP),
+      },
+      {
+        scale: interpolate(scrollX.value, inputRange, [0.82, 1, 0.82], Extrapolation.CLAMP),
+      },
+    ],
+    opacity: interpolate(scrollX.value, inputRange, [0, 1, 0], Extrapolation.CLAMP),
+  }));
+  const textStyle = useAnimatedStyle(() => ({
+    transform: [
+      { translateY: interpolate(scrollX.value, inputRange, [18, 0, 18], Extrapolation.CLAMP) },
+    ],
+    opacity: interpolate(scrollX.value, inputRange, [0, 1, 0], Extrapolation.CLAMP),
+  }));
 
   return (
-    <View style={styles.slide}>
-      <View style={styles.artCard}>
-        <Animated.View style={[styles.artWrap, imageStyle]}>
-          <Image contentFit="contain" source={slide.image} style={styles.art} />
+    <View className="px-7 pt-4" style={{ width }}>
+      <View className="h-[46%] items-center justify-center">
+        <Animated.View className="h-full w-full items-center justify-center" style={imageStyle}>
+          <Image contentFit="contain" source={slide.image} className="h-full w-full" />
         </Animated.View>
       </View>
       <Animated.View style={textStyle}>
-        <Text style={styles.title}>{slide.title}</Text>
-        <Text style={styles.body}>{slide.body}</Text>
+        <Text className="mt-7 font-outfit-semibold text-[30px] leading-9 tracking-[-0.6px] text-fufu-ink">
+          {slide.title}
+        </Text>
+        <Text className="mt-3.5 pr-3 font-outfit text-[15.5px] leading-[23px] tracking-[0.1px] text-[#705B4C]">
+          {slide.body}
+        </Text>
       </Animated.View>
     </View>
   );
@@ -188,32 +158,16 @@ function Dot({
   onPress: () => void;
 }) {
   const inputRange = [(index - 1) * width, index * width, (index + 1) * width];
+  const dotStyle = useAnimatedStyle(() => ({
+    width: interpolate(scrollX.value, inputRange, [8, 26, 8], Extrapolation.CLAMP),
+    backgroundColor: interpolateColor(scrollX.value, inputRange, ["#E7D8C8", "#E95F18", "#E7D8C8"]),
+  }));
 
-  const dotStyle = useAnimatedStyle(() => {
-    const dotWidth = interpolate(
-      scrollX.value,
-      inputRange,
-      [8, 26, 8],
-      Extrapolation.CLAMP
-    );
-    const backgroundColor = interpolateColor(
-      scrollX.value,
-      inputRange,
-      ["#E7D8C8", "#E95F18", "#E7D8C8"]
-    );
-    return { width: dotWidth, backgroundColor };
-  });
-
-  return (
-    <AnimatedPressable onPress={onPress} hitSlop={10} style={[styles.dot, dotStyle]} />
-  );
+  return <AnimatedPressable onPress={onPress} hitSlop={10} className="h-2 rounded" style={dotStyle} />;
 }
 
 const lastIndex = slides.length - 1;
-const lastRange = [
-  (lastIndex - 1) * width,
-  lastIndex * width,
-];
+const lastRange = [(lastIndex - 1) * width, lastIndex * width];
 
 function MorphingCta({
   scrollX,
@@ -222,148 +176,34 @@ function MorphingCta({
   scrollX: SharedValue<number>;
   onPress: () => void;
 }) {
-  // Progress 0 -> 1 as the user scrolls from the second-to-last slide
-  // into the final slide. Everything below reads off this one value,
-  // the same way the dots and parallax read off scrollX directly —
-  // so the CTA morphs on the same physics as the rest of the screen
-  // instead of behaving like a separately-styled element.
-  const containerStyle = useAnimatedStyle(() => {
-    const ctaWidth = interpolate(
-      scrollX.value,
-      lastRange,
-      [148, width - 56],
-      Extrapolation.CLAMP
-    );
-    const radius = interpolate(
-      scrollX.value,
-      lastRange,
-      [28, 16],
-      Extrapolation.CLAMP
-    );
-    return { width: ctaWidth, borderRadius: radius };
-  });
-
-  const labelStyle = useAnimatedStyle(() => {
-    const opacity = interpolate(
-      scrollX.value,
-      [lastRange[1] - width * 0.35, lastRange[1]],
-      [0, 1],
-      Extrapolation.CLAMP
-    );
-    return { opacity };
-  });
-
-  const compactLabelStyle = useAnimatedStyle(() => {
-    const opacity = interpolate(
-      scrollX.value,
-      [lastRange[0], lastRange[0] + width * 0.3],
-      [1, 0],
-      Extrapolation.CLAMP
-    );
-    return { opacity, position: "absolute" as const };
-  });
-
-  const arrowStyle = useAnimatedStyle(() => {
-    const translateX = interpolate(
-      scrollX.value,
-      lastRange,
-      [0, 6],
-      Extrapolation.CLAMP
-    );
-    return { transform: [{ translateX }] };
-  });
+  const containerStyle = useAnimatedStyle(() => ({
+    width: interpolate(scrollX.value, lastRange, [148, width - 56], Extrapolation.CLAMP),
+    borderRadius: interpolate(scrollX.value, lastRange, [28, 16], Extrapolation.CLAMP),
+  }));
+  const labelStyle = useAnimatedStyle(() => ({
+    opacity: interpolate(scrollX.value, [lastRange[1] - width * 0.35, lastRange[1]], [0, 1], Extrapolation.CLAMP),
+  }));
+  const compactLabelStyle = useAnimatedStyle(() => ({
+    opacity: interpolate(scrollX.value, [lastRange[0], lastRange[0] + width * 0.3], [1, 0], Extrapolation.CLAMP),
+    position: "absolute" as const,
+  }));
+  const arrowStyle = useAnimatedStyle(() => ({
+    transform: [{ translateX: interpolate(scrollX.value, lastRange, [0, 6], Extrapolation.CLAMP) }],
+  }));
 
   return (
-    <View style={styles.ctaRow}>
-      <AnimatedPressable
-        onPress={onPress}
-        style={[styles.button, containerStyle]}
-      >
-        <Animated.Text style={[styles.compactLabel, compactLabelStyle]}>
+    <View className="w-full items-end">
+      <AnimatedPressable onPress={onPress} className="h-14 flex-row items-center justify-center gap-2 bg-fufu-primary" style={containerStyle}>
+        <Animated.Text className="font-outfit-bold text-base tracking-[0.1px] text-[#FFF9F4]" style={compactLabelStyle}>
           Next
         </Animated.Text>
-        <Animated.Text style={[styles.buttonText, labelStyle]}>
+        <Animated.Text className="font-outfit-bold text-base tracking-[0.1px] text-[#FFF9F4]" style={labelStyle}>
           Get started
         </Animated.Text>
-        <Animated.Text style={[styles.buttonArrow, arrowStyle]}>
+        <Animated.Text className="font-outfit-bold text-base text-[#FFF9F4]" style={arrowStyle}>
           →
         </Animated.Text>
       </AnimatedPressable>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  safeArea: { backgroundColor: "#FFF9F2", flex: 1 },
-  carousel: { flex: 1 },
-  slide: { paddingHorizontal: 28, paddingTop: 16, width },
-  artCard: {
-    alignItems: "center",
-    height: "46%",
-    justifyContent: "center",
-  },
-  artWrap: {
-    alignItems: "center",
-    height: "100%",
-    justifyContent: "center",
-    width: "100%",
-  },
-  art: { height: "100%", width: "100%" },
-  title: {
-    color: "#28170E",
-    fontFamily: OUTFIT.semibold,
-    fontSize: 30,
-    letterSpacing: -0.6,
-    lineHeight: 36,
-    marginTop: 28,
-  },
-  body: {
-    color: "#705B4C",
-    fontFamily: OUTFIT.regular,
-    fontSize: 15.5,
-    letterSpacing: 0.1,
-    lineHeight: 23,
-    marginTop: 14,
-    paddingRight: 12,
-  },
-  bottomArea: {
-    gap: 28,
-    minHeight: 132,
-    paddingBottom: 8,
-    paddingHorizontal: 28,
-    paddingTop: 12,
-  },
-  dots: {
-    alignItems: "center",
-    flexDirection: "row",
-    gap: 7,
-    justifyContent: "center",
-  },
-  dot: { borderRadius: 4, height: 8 },
-  ctaRow: { alignItems: "flex-end", width: "100%" },
-  button: {
-    alignItems: "center",
-    backgroundColor: "#E95F18",
-    flexDirection: "row",
-    gap: 8,
-    height: 56,
-    justifyContent: "center",
-  },
-  compactLabel: {
-    color: "#FFF9F4",
-    fontFamily: OUTFIT.bold,
-    fontSize: 16,
-    letterSpacing: 0.1,
-  },
-  buttonText: {
-    color: "#FFF9F4",
-    fontFamily: OUTFIT.bold,
-    fontSize: 16,
-    letterSpacing: 0.1,
-  },
-  buttonArrow: {
-    color: "#FFF9F4",
-    fontFamily: OUTFIT.bold,
-    fontSize: 16,
-  },
-});

@@ -1,5 +1,5 @@
 import { SymbolView } from "expo-symbols";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Pressable, Text, View } from "react-native";
 import { useAuthStore } from "@/features/auth/auth-store";
 import { FUFU } from "@/theme/colors";
 import { initials } from "@/utils/catalog";
@@ -9,22 +9,21 @@ type CustomerHeaderProps = {
   onSearch?: () => void;
 };
 
-export function CustomerHeader({
-  onProfile,
-  onSearch,
-}: CustomerHeaderProps) {
+export function CustomerHeader({ onProfile, onSearch }: CustomerHeaderProps) {
   const user = useAuthStore((state) => state.user);
 
   return (
-    <View style={styles.header}>
-      <View style={styles.brandRow}>
-        <View style={styles.locationBlock}>
-          <Text style={styles.brand}>FUFU</Text>
+    <View className="bg-fufu-bg px-5 pt-2">
+      <View className="flex-row items-center justify-between">
+        <View className="gap-1">
+          <Text className="font-outfit-extrabold text-[22px] tracking-[1.1px] text-fufu-primary">
+            FUFU
+          </Text>
           <Pressable
             accessibilityLabel="Delivery location: Kigali, Rwanda"
             accessibilityRole="button"
+            className="flex-row items-center gap-1 active:opacity-70"
             hitSlop={8}
-            style={styles.location}
           >
             <SymbolView
               name={{
@@ -35,31 +34,24 @@ export function CustomerHeader({
               size={15}
               tintColor={FUFU.primary}
             />
-            <Text style={styles.locationText}>
-              Delivering in <Text style={styles.locationStrong}>Kigali</Text>
+            <Text className="font-outfit text-xs text-fufu-muted">
+              Delivering in <Text className="font-outfit-semibold text-fufu-ink-soft">Kigali</Text>
             </Text>
-            <Text style={styles.chevron}>⌄</Text>
+            <Text className="font-outfit-bold text-[15px] leading-[13px] text-fufu-primary">⌄</Text>
           </Pressable>
         </View>
 
-        <View style={styles.actions}>
+        <View className="flex-row items-center gap-[9px]">
           {onSearch ? (
             <Pressable
               accessibilityLabel="Search menu"
               accessibilityRole="button"
+              className="h-[42px] w-[42px] items-center justify-center rounded-[14px] border border-fufu-line bg-fufu-surface active:opacity-75 active:scale-95"
               hitSlop={8}
               onPress={onSearch}
-              style={({ pressed }) => [
-                styles.iconButton,
-                pressed && styles.pressed,
-              ]}
             >
               <SymbolView
-                name={{
-                  android: "search",
-                  ios: "magnifyingglass",
-                  web: "search",
-                }}
+                name={{ android: "search", ios: "magnifyingglass", web: "search" }}
                 size={21}
                 tintColor={FUFU.ink}
               />
@@ -68,14 +60,11 @@ export function CustomerHeader({
           <Pressable
             accessibilityLabel="Open profile"
             accessibilityRole="button"
+            className="h-[42px] w-[42px] items-center justify-center rounded-[14px] bg-fufu-ink active:opacity-75 active:scale-95"
             hitSlop={8}
             onPress={onProfile}
-            style={({ pressed }) => [
-              styles.avatar,
-              pressed && styles.pressed,
-            ]}
           >
-            <Text style={styles.avatarText}>
+            <Text className="font-outfit-bold text-sm text-fufu-white">
               {initials(user?.firstName, user?.lastName)}
             </Text>
           </Pressable>
@@ -84,77 +73,3 @@ export function CustomerHeader({
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  header: {
-    backgroundColor: FUFU.background,
-    paddingHorizontal: 20,
-    paddingTop: 8,
-  },
-  brandRow: {
-    alignItems: "center",
-    flexDirection: "row",
-    justifyContent: "space-between",
-  },
-  locationBlock: {
-    gap: 4,
-  },
-  brand: {
-    color: FUFU.primary,
-    fontFamily: "Outfit_800ExtraBold",
-    fontSize: 22,
-    letterSpacing: 1.1,
-  },
-  location: {
-    alignItems: "center",
-    flexDirection: "row",
-    gap: 5,
-  },
-  locationText: {
-    color: FUFU.muted,
-    fontFamily: "Outfit_400Regular",
-    fontSize: 12,
-  },
-  locationStrong: {
-    color: FUFU.inkSoft,
-    fontFamily: "Outfit_600SemiBold",
-  },
-  chevron: {
-    color: FUFU.primary,
-    fontFamily: "Outfit_700Bold",
-    fontSize: 15,
-    lineHeight: 13,
-  },
-  actions: {
-    alignItems: "center",
-    flexDirection: "row",
-    gap: 9,
-  },
-  iconButton: {
-    alignItems: "center",
-    backgroundColor: FUFU.surface,
-    borderColor: FUFU.line,
-    borderRadius: 14,
-    borderWidth: 1,
-    height: 42,
-    justifyContent: "center",
-    width: 42,
-  },
-  avatar: {
-    alignItems: "center",
-    backgroundColor: FUFU.ink,
-    borderRadius: 14,
-    height: 42,
-    justifyContent: "center",
-    width: 42,
-  },
-  avatarText: {
-    color: FUFU.white,
-    fontFamily: "Outfit_700Bold",
-    fontSize: 14,
-  },
-  pressed: {
-    opacity: 0.78,
-    transform: [{ scale: 0.96 }],
-  },
-});

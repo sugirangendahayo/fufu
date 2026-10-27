@@ -1,13 +1,7 @@
 import { router, type Href } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { useCallback } from "react";
-import {
-  RefreshControl,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from "react-native";
+import { RefreshControl, ScrollView, Text, View } from "react-native";
 import Animated, { FadeInDown } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { CategoryRail } from "@/components/catalog/category-rail";
@@ -24,12 +18,8 @@ import { HeroCarousel } from "@/components/customer/hero-carousel";
 import { SectionHeader } from "@/components/customer/section-header";
 import { useTabBarInset } from "@/components/navigation/floating-tab-bar";
 import { useAddToCart } from "@/features/cart/use-add-to-cart";
-import {
-  useCategories,
-  useCombos,
-  useProducts,
-} from "@/features/catalog/hooks";
 import { useAuthStore } from "@/features/auth/auth-store";
+import { useCategories, useCombos, useProducts } from "@/features/catalog/hooks";
 import { FUFU } from "@/theme/colors";
 
 export default function HomeScreen() {
@@ -72,13 +62,10 @@ export default function HomeScreen() {
     combosQuery.isRefetching;
 
   return (
-    <SafeAreaView edges={["top"]} style={styles.safeArea}>
+    <SafeAreaView className="flex-1 bg-fufu-bg" edges={["top"]}>
       <StatusBar style="dark" />
       <ScrollView
-        contentContainerStyle={[
-          styles.contentContainer,
-          { paddingBottom: tabBarInset },
-        ]}
+        contentContainerStyle={{ paddingBottom: tabBarInset }}
         refreshControl={
           <RefreshControl
             onRefresh={refresh}
@@ -90,21 +77,23 @@ export default function HomeScreen() {
       >
         <CustomerHeader onProfile={openProfile} onSearch={openMenu} />
 
-        <View style={styles.content}>
-          <Animated.View entering={FadeInDown.duration(500)} style={styles.intro}>
-            <Text style={styles.eyebrow}>YOUR NEXT GOOD MEAL</Text>
-            <Text style={styles.title}>
+        <View className="gap-[25px] px-5 pt-[25px]">
+          <Animated.View entering={FadeInDown.duration(500)} className="gap-1.5">
+            <Text className="font-outfit-bold text-[11px] tracking-[1.5px] text-fufu-primary-deep">
+              YOUR NEXT GOOD MEAL
+            </Text>
+            <Text className="font-outfit-bold text-[31px] leading-[37px] tracking-[-0.8px] text-fufu-ink">
               {firstName ? `Hey ${firstName}, ` : "Hey there, "}
               what are you craving?
             </Text>
-            <Text style={styles.subtitle}>
+            <Text className="font-outfit text-[15px] leading-[21px] text-fufu-muted">
               Freshly made favourites, ready when you are.
             </Text>
           </Animated.View>
 
           <HeroCarousel onExplore={openMenu} />
 
-          <View style={styles.section}>
+          <View className="gap-3.5">
             <SectionHeader
               actionLabel="See all"
               onAction={openMenu}
@@ -126,7 +115,7 @@ export default function HomeScreen() {
 
           <NoticeBanner message={cartError} />
 
-          <View style={styles.section}>
+          <View className="gap-3.5">
             <SectionHeader
               actionLabel="Full menu"
               onAction={openMenu}
@@ -141,7 +130,7 @@ export default function HomeScreen() {
               />
             ) : featuredProducts.length > 0 ? (
               <ScrollView
-                contentContainerStyle={styles.productRow}
+                contentContainerClassName="gap-3 pr-5"
                 horizontal
                 showsHorizontalScrollIndicator={false}
               >
@@ -163,14 +152,14 @@ export default function HomeScreen() {
           </View>
 
           {combos.length > 0 ? (
-            <View style={styles.section}>
+            <View className="gap-3.5">
               <SectionHeader
                 actionLabel="See menu"
                 onAction={openMenu}
                 title="Made to go together"
               />
               <ScrollView
-                contentContainerStyle={styles.comboRow}
+                contentContainerClassName="gap-3 pr-5"
                 horizontal
                 showsHorizontalScrollIndicator={false}
               >
@@ -181,9 +170,9 @@ export default function HomeScreen() {
             </View>
           ) : null}
 
-          <View style={styles.bottomNote}>
-            <Text style={styles.bottomNoteMark}>✦</Text>
-            <Text style={styles.bottomNoteText}>
+          <View className="flex-row items-center justify-center gap-2 pb-2 pt-0.5">
+            <Text className="font-outfit text-xl text-fufu-butter">✦</Text>
+            <Text className="font-outfit text-xs text-fufu-muted">
               Made for Kigali cravings, one order at a time.
             </Text>
           </View>
@@ -192,68 +181,3 @@ export default function HomeScreen() {
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  safeArea: {
-    backgroundColor: FUFU.background,
-    flex: 1,
-  },
-  contentContainer: {
-    paddingBottom: 34,
-  },
-  content: {
-    gap: 25,
-    paddingHorizontal: 20,
-    paddingTop: 25,
-  },
-  intro: {
-    gap: 6,
-  },
-  eyebrow: {
-    color: FUFU.primaryDeep,
-    fontFamily: "Outfit_700Bold",
-    fontSize: 11,
-    letterSpacing: 1.5,
-  },
-  title: {
-    color: FUFU.ink,
-    fontFamily: "Outfit_700Bold",
-    fontSize: 31,
-    letterSpacing: -0.8,
-    lineHeight: 37,
-  },
-  subtitle: {
-    color: FUFU.muted,
-    fontFamily: "Outfit_400Regular",
-    fontSize: 15,
-    lineHeight: 21,
-  },
-  section: {
-    gap: 14,
-  },
-  productRow: {
-    gap: 12,
-    paddingRight: 20,
-  },
-  comboRow: {
-    gap: 12,
-    paddingRight: 20,
-  },
-  bottomNote: {
-    alignItems: "center",
-    flexDirection: "row",
-    gap: 8,
-    justifyContent: "center",
-    paddingBottom: 8,
-    paddingTop: 3,
-  },
-  bottomNoteMark: {
-    color: FUFU.butter,
-    fontSize: 20,
-  },
-  bottomNoteText: {
-    color: FUFU.muted,
-    fontFamily: "Outfit_400Regular",
-    fontSize: 12,
-  },
-});

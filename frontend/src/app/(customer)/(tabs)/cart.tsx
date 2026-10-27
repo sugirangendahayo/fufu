@@ -6,7 +6,6 @@ import {
   Pressable,
   RefreshControl,
   ScrollView,
-  StyleSheet,
   Text,
   View,
 } from "react-native";
@@ -66,13 +65,10 @@ export default function CartScreen() {
   }, [cart?.items.length, clearCart, isPending]);
 
   return (
-    <SafeAreaView edges={["top"]} style={styles.safeArea}>
+    <SafeAreaView className="flex-1 bg-fufu-bg" edges={["top"]}>
       <StatusBar style="dark" />
       <ScrollView
-        contentContainerStyle={[
-          styles.contentContainer,
-          { paddingBottom: tabBarInset },
-        ]}
+        contentContainerStyle={{ paddingBottom: tabBarInset }}
         refreshControl={
           <RefreshControl
             onRefresh={refresh}
@@ -84,13 +80,17 @@ export default function CartScreen() {
       >
         <CustomerHeader onProfile={openProfile} onSearch={openMenu} />
 
-        <View style={styles.content}>
-          <Animated.View entering={FadeInDown.duration(500)} style={styles.intro}>
-            <View style={styles.titleRow}>
-              <View style={styles.titleCopy}>
-                <Text style={styles.eyebrow}>YOUR FUFU BAG</Text>
-                <Text style={styles.title}>Good choices, all in one place.</Text>
-                <Text style={styles.subtitle}>
+        <View className="gap-[22px] px-5 pt-[25px]">
+          <Animated.View entering={FadeInDown.duration(500)} className="gap-1.5">
+            <View className="flex-row items-start justify-between gap-3">
+              <View className="flex-1 gap-1.5">
+                <Text className="font-outfit-bold text-[11px] tracking-[1.5px] text-fufu-primary-deep">
+                  YOUR FUFU BAG
+                </Text>
+                <Text className="font-outfit-bold text-[29px] leading-[35px] tracking-[-0.8px] text-fufu-ink">
+                  Good choices, all in one place.
+                </Text>
+                <Text className="font-outfit text-[15px] leading-[21px] text-fufu-muted">
                   Review your favourites before they make their way to you.
                 </Text>
               </View>
@@ -99,15 +99,11 @@ export default function CartScreen() {
                   accessibilityLabel="Clear cart"
                   accessibilityRole="button"
                   accessibilityState={{ disabled: isPending }}
+                  className={`mt-[3px] rounded-xl border border-fufu-line px-3 py-2 ${isPending ? "opacity-45" : ""} active:opacity-70 active:scale-95`}
                   disabled={isPending}
                   onPress={confirmClear}
-                  style={({ pressed }) => [
-                    styles.clearButton,
-                    isPending && styles.disabled,
-                    pressed && styles.pressed,
-                  ]}
                 >
-                  <Text style={styles.clearText}>Clear</Text>
+                  <Text className="font-outfit-semibold text-xs text-fufu-primary-deep">Clear</Text>
                 </Pressable>
               ) : null}
             </View>
@@ -122,14 +118,14 @@ export default function CartScreen() {
             />
           ) : cart && cart.items.length > 0 ? (
             <>
-              <View style={styles.itemHeading}>
-                <Text style={styles.sectionTitle}>Your items</Text>
-                <Text style={styles.itemCount}>
+              <View className="flex-row items-center justify-between">
+                <Text className="font-outfit-bold text-xl text-fufu-ink">Your items</Text>
+                <Text className="font-outfit text-[13px] text-fufu-muted">
                   {cart.totalQuantity} {cart.totalQuantity === 1 ? "item" : "items"}
                 </Text>
               </View>
 
-              <View style={styles.items}>
+              <View className="gap-3">
                 {cart.items.map((item, index) => (
                   <CartItemCard
                     busy={isPending && (pendingItemId === item.id || isClearing)}
@@ -158,88 +154,3 @@ export default function CartScreen() {
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  safeArea: {
-    backgroundColor: FUFU.background,
-    flex: 1,
-  },
-  contentContainer: {
-    paddingTop: 1,
-  },
-  content: {
-    gap: 22,
-    paddingHorizontal: 20,
-    paddingTop: 25,
-  },
-  intro: {
-    gap: 6,
-  },
-  titleRow: {
-    alignItems: "flex-start",
-    flexDirection: "row",
-    gap: 12,
-    justifyContent: "space-between",
-  },
-  titleCopy: {
-    flex: 1,
-    gap: 6,
-  },
-  eyebrow: {
-    color: FUFU.primaryDeep,
-    fontFamily: "Outfit_700Bold",
-    fontSize: 11,
-    letterSpacing: 1.5,
-  },
-  title: {
-    color: FUFU.ink,
-    fontFamily: "Outfit_700Bold",
-    fontSize: 29,
-    letterSpacing: -0.8,
-    lineHeight: 35,
-  },
-  subtitle: {
-    color: FUFU.muted,
-    fontFamily: "Outfit_400Regular",
-    fontSize: 15,
-    lineHeight: 21,
-  },
-  clearButton: {
-    borderColor: FUFU.line,
-    borderRadius: 12,
-    borderWidth: 1,
-    marginTop: 3,
-    paddingHorizontal: 11,
-    paddingVertical: 8,
-  },
-  clearText: {
-    color: FUFU.primaryDeep,
-    fontFamily: "Outfit_600SemiBold",
-    fontSize: 12,
-  },
-  itemHeading: {
-    alignItems: "center",
-    flexDirection: "row",
-    justifyContent: "space-between",
-  },
-  sectionTitle: {
-    color: FUFU.ink,
-    fontFamily: "Outfit_700Bold",
-    fontSize: 20,
-  },
-  itemCount: {
-    color: FUFU.muted,
-    fontFamily: "Outfit_400Regular",
-    fontSize: 13,
-  },
-  items: {
-    gap: 12,
-  },
-  disabled: {
-    opacity: 0.45,
-  },
-  pressed: {
-    opacity: 0.7,
-    transform: [{ scale: 0.96 }],
-  },
-});

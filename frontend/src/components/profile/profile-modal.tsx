@@ -6,11 +6,10 @@ import {
   Platform,
   Pressable,
   ScrollView,
-  StyleSheet,
   Text,
   View,
 } from "react-native";
-import { AUTH, Field } from "@/components/auth/auth-ui";
+import { Field } from "@/components/auth/auth-ui";
 import { FUFU } from "@/theme/colors";
 
 export type AddressFormValues = {
@@ -59,19 +58,19 @@ function ModalShell({ children, onClose, title, visible }: ModalShellProps) {
     >
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : undefined}
-        style={styles.modalBackdrop}
+        className="flex-1 justify-end bg-[rgba(40,23,14,0.44)]"
       >
-        <View style={styles.modalCard}>
-          <View style={styles.modalHeader}>
-            <Text style={styles.modalTitle}>{title}</Text>
+        <View className="max-h-[92%] rounded-t-[28px] bg-fufu-bg px-[22px] pt-[18px]">
+          <View className="flex-row items-center justify-between pb-2">
+            <Text className="font-outfit-bold text-[22px] text-fufu-ink">{title}</Text>
             <Pressable
               accessibilityLabel="Close"
               accessibilityRole="button"
+              className="active:opacity-70"
               hitSlop={10}
               onPress={onClose}
-              style={({ pressed }) => [pressed && styles.pressed]}
             >
-              <Text style={styles.close}>×</Text>
+              <Text className="font-outfit text-[28px] leading-7 text-fufu-muted">×</Text>
             </Pressable>
           </View>
           {children}
@@ -97,30 +96,26 @@ function ModalActions({
   saveLabel,
 }: ModalActionsProps) {
   return (
-    <View style={styles.actions}>
+    <View className="mt-0.5 flex-row gap-2">
       <Pressable
         accessibilityRole="button"
+        className="min-h-[50px] flex-1 items-center justify-center rounded-[14px] border border-fufu-line px-3 active:opacity-70 active:scale-[0.98]"
         disabled={saving}
         onPress={onCancel}
-        style={({ pressed }) => [styles.cancelButton, pressed && styles.pressed]}
       >
-        <Text style={styles.cancelText}>Cancel</Text>
+        <Text className="font-outfit-semibold text-sm text-fufu-ink-soft">Cancel</Text>
       </Pressable>
       <Pressable
         accessibilityRole="button"
         accessibilityState={{ busy: saving, disabled }}
+        className={`min-h-[50px] flex-[1.35] items-center justify-center rounded-[14px] bg-fufu-primary px-3 ${disabled ? "opacity-50" : ""} active:opacity-70 active:scale-[0.98]`}
         disabled={disabled}
         onPress={onSave}
-        style={({ pressed }) => [
-          styles.saveButton,
-          disabled && styles.disabled,
-          pressed && styles.pressed,
-        ]}
       >
         {saving ? (
           <ActivityIndicator color={FUFU.white} size="small" />
         ) : (
-          <Text style={styles.saveText}>{saveLabel}</Text>
+          <Text className="font-outfit-semibold text-sm text-fufu-white">{saveLabel}</Text>
         )}
       </Pressable>
     </View>
@@ -153,11 +148,13 @@ export function ProfileEditModal({
   return (
     <ModalShell onClose={onClose} title="Personal details" visible={visible}>
       <ScrollView
-        contentContainerStyle={styles.form}
+        contentContainerClassName="gap-[17px] pb-7 pt-2.5"
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
-        <Text style={styles.helper}>Keep your details current for every order.</Text>
+        <Text className="font-outfit text-sm leading-5 text-fufu-muted">
+          Keep your details current for every order.
+        </Text>
         <Field
           autoCapitalize="words"
           label="First name"
@@ -172,7 +169,7 @@ export function ProfileEditModal({
           placeholder="Hirwa"
           value={lastName}
         />
-        {error ? <Text style={styles.error}>{error}</Text> : null}
+        {error ? <Text className="font-outfit text-[13px] leading-[18px] text-fufu-danger">{error}</Text> : null}
         <ModalActions
           disabled={saving || !firstName.trim()}
           onCancel={onClose}
@@ -207,11 +204,11 @@ export function AddressFormModal({
   return (
     <ModalShell onClose={onClose} title="Add a delivery address" visible={visible}>
       <ScrollView
-        contentContainerStyle={styles.form}
+        contentContainerClassName="gap-[17px] pb-7 pt-2.5"
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
-        <Text style={styles.helper}>
+        <Text className="font-outfit text-sm leading-5 text-fufu-muted">
           Add a place where our rider can find you in Kigali.
         </Text>
         <Field
@@ -236,8 +233,8 @@ export function AddressFormModal({
           placeholder="0788 123 456"
           value={values.phone}
         />
-        <View style={styles.row}>
-          <View style={styles.rowField}>
+        <View className="flex-row gap-3.5">
+          <View className="flex-1">
             <Field
               autoCapitalize="words"
               label="District"
@@ -246,7 +243,7 @@ export function AddressFormModal({
               value={values.district}
             />
           </View>
-          <View style={styles.rowField}>
+          <View className="flex-1">
             <Field
               autoCapitalize="words"
               label="Sector"
@@ -277,15 +274,15 @@ export function AddressFormModal({
         <Pressable
           accessibilityRole="checkbox"
           accessibilityState={{ checked: values.isDefault }}
+          className="flex-row items-center gap-2.5 py-0.5 active:opacity-70"
           onPress={() => onChange("isDefault", !values.isDefault)}
-          style={styles.defaultRow}
         >
-          <View style={[styles.checkbox, values.isDefault && styles.checkboxChecked]}>
-            {values.isDefault ? <Text style={styles.check}>✓</Text> : null}
+          <View className={`h-6 w-6 items-center justify-center rounded-[7px] border ${values.isDefault ? "border-fufu-primary bg-fufu-primary" : "border-fufu-line"}`}>
+            {values.isDefault ? <Text className="font-outfit-bold text-base text-fufu-white">✓</Text> : null}
           </View>
-          <Text style={styles.defaultText}>Use this as my default address</Text>
+          <Text className="font-outfit-medium text-sm text-fufu-ink-soft">Use this as my default address</Text>
         </Pressable>
-        {error ? <Text style={styles.error}>{error}</Text> : null}
+        {error ? <Text className="font-outfit text-[13px] leading-[18px] text-fufu-danger">{error}</Text> : null}
         <ModalActions
           disabled={
             saving ||
@@ -302,130 +299,3 @@ export function AddressFormModal({
     </ModalShell>
   );
 }
-
-const styles = StyleSheet.create({
-  modalBackdrop: {
-    backgroundColor: "rgba(40, 23, 14, 0.44)",
-    flex: 1,
-    justifyContent: "flex-end",
-  },
-  modalCard: {
-    backgroundColor: FUFU.background,
-    borderTopLeftRadius: 28,
-    borderTopRightRadius: 28,
-    maxHeight: "92%",
-    paddingHorizontal: 22,
-    paddingTop: 18,
-  },
-  modalHeader: {
-    alignItems: "center",
-    flexDirection: "row",
-    justifyContent: "space-between",
-    paddingBottom: 8,
-  },
-  modalTitle: {
-    color: FUFU.ink,
-    fontFamily: "Outfit_700Bold",
-    fontSize: 22,
-  },
-  close: {
-    color: FUFU.muted,
-    fontFamily: "Outfit_400Regular",
-    fontSize: 28,
-    lineHeight: 28,
-  },
-  form: {
-    gap: 17,
-    paddingBottom: 28,
-    paddingTop: 10,
-  },
-  helper: {
-    color: FUFU.muted,
-    fontFamily: "Outfit_400Regular",
-    fontSize: 14,
-    lineHeight: 20,
-  },
-  row: {
-    flexDirection: "row",
-    gap: 14,
-  },
-  rowField: {
-    flex: 1,
-  },
-  defaultRow: {
-    alignItems: "center",
-    flexDirection: "row",
-    gap: 10,
-    paddingVertical: 3,
-  },
-  checkbox: {
-    alignItems: "center",
-    borderColor: FUFU.line,
-    borderRadius: 7,
-    borderWidth: 1,
-    height: 24,
-    justifyContent: "center",
-    width: 24,
-  },
-  checkboxChecked: {
-    backgroundColor: FUFU.primary,
-    borderColor: FUFU.primary,
-  },
-  check: {
-    color: FUFU.white,
-    fontFamily: "Outfit_700Bold",
-    fontSize: 16,
-  },
-  defaultText: {
-    color: FUFU.inkSoft,
-    fontFamily: "Outfit_500Medium",
-    fontSize: 14,
-  },
-  error: {
-    color: AUTH.error,
-    fontFamily: "Outfit_500Medium",
-    fontSize: 13,
-    lineHeight: 18,
-  },
-  actions: {
-    flexDirection: "row",
-    gap: 10,
-    marginTop: 2,
-  },
-  cancelButton: {
-    alignItems: "center",
-    borderColor: FUFU.line,
-    borderRadius: 14,
-    borderWidth: 1,
-    flex: 1,
-    justifyContent: "center",
-    minHeight: 50,
-    paddingHorizontal: 12,
-  },
-  cancelText: {
-    color: FUFU.inkSoft,
-    fontFamily: "Outfit_600SemiBold",
-    fontSize: 14,
-  },
-  saveButton: {
-    alignItems: "center",
-    backgroundColor: FUFU.primary,
-    borderRadius: 14,
-    flex: 1.35,
-    justifyContent: "center",
-    minHeight: 50,
-    paddingHorizontal: 12,
-  },
-  saveText: {
-    color: FUFU.white,
-    fontFamily: "Outfit_600SemiBold",
-    fontSize: 14,
-  },
-  disabled: {
-    opacity: 0.5,
-  },
-  pressed: {
-    opacity: 0.72,
-    transform: [{ scale: 0.98 }],
-  },
-});

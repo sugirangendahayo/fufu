@@ -7,7 +7,6 @@ import {
   Pressable,
   RefreshControl,
   ScrollView,
-  StyleSheet,
   Text,
   View,
 } from "react-native";
@@ -115,9 +114,7 @@ export default function ProfileScreen() {
       phone: addressForm.phone.trim(),
       province: addressForm.province.trim() || "Kigali",
       recipientName: addressForm.recipientName.trim(),
-      ...(addressForm.building.trim()
-        ? { building: addressForm.building.trim() }
-        : {}),
+      ...(addressForm.building.trim() ? { building: addressForm.building.trim() } : {}),
       ...(addressForm.instructions.trim()
         ? { instructions: addressForm.instructions.trim() }
         : {}),
@@ -207,13 +204,10 @@ export default function ProfileScreen() {
   }, [refetchAddresses, refetchProfile]);
 
   return (
-    <SafeAreaView edges={["top"]} style={styles.safeArea}>
+    <SafeAreaView className="flex-1 bg-fufu-bg" edges={["top"]}>
       <StatusBar style="dark" />
       <ScrollView
-        contentContainerStyle={[
-          styles.contentContainer,
-          { paddingBottom: tabBarInset },
-        ]}
+        contentContainerStyle={{ paddingBottom: tabBarInset }}
         refreshControl={
           <RefreshControl
             onRefresh={refresh}
@@ -225,27 +219,36 @@ export default function ProfileScreen() {
       >
         <CustomerHeader onSearch={openMenu} />
 
-        <View style={styles.content}>
-          <Animated.View entering={FadeInDown.duration(500)} style={styles.profileHero}>
-            <View style={styles.avatar}>
-              <Text style={styles.avatarText}>{initialsText}</Text>
+        <View className="gap-[25px] px-5 pt-[25px]">
+          <Animated.View
+            entering={FadeInDown.duration(500)}
+            className="min-h-[142px] flex-row items-center gap-[13px] rounded-[26px] bg-fufu-ink p-[18px]"
+          >
+            <View className="h-[68px] w-[68px] items-center justify-center rounded-[34px] border border-[rgba(255,255,255,0.25)] bg-fufu-primary">
+              <Text className="font-outfit-extrabold text-[22px] text-fufu-white">{initialsText}</Text>
             </View>
-            <View style={styles.heroCopy}>
-              <Text style={styles.heroEyebrow}>{roleLabel(user?.role)}</Text>
-              <Text numberOfLines={1} style={styles.heroName}>
+            <View className="min-w-0 flex-1 gap-[3px]">
+              <Text className="font-outfit-bold text-[10px] uppercase tracking-[1.2px] text-fufu-butter">
+                {roleLabel(user?.role)}
+              </Text>
+              <Text numberOfLines={1} className="font-outfit-bold text-[22px] text-fufu-white">
                 {fullName || "Fufu member"}
               </Text>
-              <Text style={styles.heroPhone}>{user?.phone ?? "Your phone number"}</Text>
-              <Text style={styles.heroMeta}>{memberSince(user?.createdAt)}</Text>
+              <Text className="font-outfit text-[13px] text-[rgba(255,255,255,0.74)]">
+                {user?.phone ?? "Your phone number"}
+              </Text>
+              <Text className="mt-0.5 font-outfit text-[11px] text-[rgba(255,255,255,0.5)]">
+                {memberSince(user?.createdAt)}
+              </Text>
             </View>
             <Pressable
               accessibilityLabel="Edit personal details"
               accessibilityRole="button"
+              className="h-9 w-9 items-center justify-center rounded-xl bg-[rgba(255,255,255,0.12)] active:opacity-70 active:scale-95"
               hitSlop={8}
               onPress={openEdit}
-              style={({ pressed }) => [styles.editIcon, pressed && styles.pressed]}
             >
-              <Text style={styles.editIconText}>✎</Text>
+              <Text className="text-lg text-fufu-white">✎</Text>
             </Pressable>
           </Animated.View>
 
@@ -255,19 +258,19 @@ export default function ProfileScreen() {
             <ProfileSkeleton />
           ) : (
             <>
-              <View style={styles.section}>
-                <View style={styles.sectionHeader}>
-                  <Text style={styles.sectionTitle}>Personal details</Text>
+              <View className="gap-[13px]">
+                <View className="flex-row items-center justify-between">
+                  <Text className="font-outfit-bold text-xl text-fufu-ink">Personal details</Text>
                   <Pressable
                     accessibilityRole="button"
+                    className="active:opacity-60"
                     hitSlop={8}
                     onPress={openEdit}
-                    style={({ pressed }) => [pressed && styles.pressed]}
                   >
-                    <Text style={styles.sectionAction}>Edit</Text>
+                    <Text className="font-outfit-semibold text-[13px] text-fufu-primary-deep">Edit</Text>
                   </Pressable>
                 </View>
-                <View style={styles.detailsCard}>
+                <View className="rounded-[20px] border border-fufu-line bg-fufu-surface px-4">
                   <ProfileRow label="Name" value={fullName || "Not set"} />
                   <ProfileRow label="Phone" value={user?.phone ?? "Not set"} />
                   <ProfileRow
@@ -278,16 +281,16 @@ export default function ProfileScreen() {
                 </View>
               </View>
 
-              <View style={styles.section}>
-                <View style={styles.sectionHeader}>
-                  <Text style={styles.sectionTitle}>Saved addresses</Text>
+              <View className="gap-[13px]">
+                <View className="flex-row items-center justify-between">
+                  <Text className="font-outfit-bold text-xl text-fufu-ink">Saved addresses</Text>
                   <Pressable
                     accessibilityRole="button"
+                    className="active:opacity-60"
                     hitSlop={8}
                     onPress={openAddressForm}
-                    style={({ pressed }) => [pressed && styles.pressed]}
                   >
-                    <Text style={styles.sectionAction}>Add new</Text>
+                    <Text className="font-outfit-semibold text-[13px] text-fufu-primary-deep">Add new</Text>
                   </Pressable>
                 </View>
                 {addressesQuery.isError ? (
@@ -296,27 +299,28 @@ export default function ProfileScreen() {
                     onRetry={() => void addressesQuery.refetch()}
                   />
                 ) : addresses.length > 0 ? (
-                  <View style={styles.addresses}>
+                  <View className="gap-[11px]">
                     {addresses.map((address) => (
                       <AddressCard
                         address={address}
                         busy={addressAction.isPending}
                         key={address.id}
                         onRemove={() =>
-                          confirmRemoveAddress(
-                            address.id,
-                            address.label || "this address",
-                          )
+                          confirmRemoveAddress(address.id, address.label || "this address")
                         }
                       />
                     ))}
                   </View>
                 ) : (
-                  <View style={styles.emptyAddress}>
-                    <Text style={styles.emptyMark}>⌂</Text>
-                    <View style={styles.emptyCopy}>
-                      <Text style={styles.emptyTitle}>No saved addresses yet</Text>
-                      <Text style={styles.emptyBody}>
+                  <View className="flex-row items-center gap-[13px] rounded-[20px] border border-fufu-line bg-fufu-surface p-4">
+                    <Text className="h-[42px] w-[42px] rounded-[14px] bg-fufu-sage-soft text-center font-outfit-bold text-[22px] leading-[42px] text-fufu-success">
+                      ⌂
+                    </Text>
+                    <View className="flex-1 gap-[3px]">
+                      <Text className="font-outfit-semibold text-[15px] text-fufu-ink">
+                        No saved addresses yet
+                      </Text>
+                      <Text className="font-outfit text-xs leading-[17px] text-fufu-muted">
                         Add your delivery spot once and make your next order easier.
                       </Text>
                     </View>
@@ -324,27 +328,22 @@ export default function ProfileScreen() {
                 )}
               </View>
 
-              <View style={styles.accountCard}>
-                <Text style={styles.accountTitle}>Account access</Text>
-                <Text style={styles.accountBody}>
-                  Your phone number is used to sign in and confirm important order
-                  updates.
+              <View className="gap-2 rounded-[22px] bg-fufu-primary-soft p-[17px]">
+                <Text className="font-outfit-bold text-[17px] text-fufu-ink">Account access</Text>
+                <Text className="font-outfit text-[13px] leading-[19px] text-fufu-muted">
+                  Your phone number is used to sign in and confirm important order updates.
                 </Text>
                 <Pressable
                   accessibilityRole="button"
                   accessibilityState={{ busy: loggingOut }}
+                  className={`mt-1 min-h-10 self-start items-center justify-center rounded-xl border border-[rgba(180,35,24,0.24)] px-[15px] ${loggingOut ? "opacity-45" : ""} active:opacity-70 active:scale-[0.97]`}
                   disabled={loggingOut}
                   onPress={logout}
-                  style={({ pressed }) => [
-                    styles.logoutButton,
-                    loggingOut && styles.disabled,
-                    pressed && styles.pressed,
-                  ]}
                 >
                   {loggingOut ? (
                     <ActivityIndicator color={FUFU.danger} size="small" />
                   ) : (
-                    <Text style={styles.logoutText}>Log out</Text>
+                    <Text className="font-outfit-semibold text-[13px] text-fufu-danger">Log out</Text>
                   )}
                 </Pressable>
               </View>
@@ -385,15 +384,11 @@ type ProfileRowProps = {
 
 function ProfileRow({ label, value, valueTone = "default" }: ProfileRowProps) {
   return (
-    <View style={styles.profileRow}>
-      <Text style={styles.rowLabel}>{label}</Text>
+    <View className="min-h-[53px] flex-row items-center justify-between border-b border-fufu-line">
+      <Text className="font-outfit text-sm text-fufu-muted">{label}</Text>
       <Text
         numberOfLines={1}
-        style={[
-          styles.rowValue,
-          valueTone === "success" && styles.success,
-          valueTone === "danger" && styles.danger,
-        ]}
+        className={`ml-[18px] flex-shrink font-outfit-semibold text-sm ${valueTone === "success" ? "text-fufu-success" : valueTone === "danger" ? "text-fufu-danger" : "text-fufu-ink"}`}
       >
         {value}
       </Text>
@@ -403,249 +398,16 @@ function ProfileRow({ label, value, valueTone = "default" }: ProfileRowProps) {
 
 function ProfileSkeleton() {
   return (
-    <View style={styles.skeletonStack}>
-      <View style={styles.skeletonCard}>
-        <View style={styles.skeletonLineWide} />
-        <View style={styles.skeletonLineShort} />
-        <View style={styles.skeletonLineWide} />
+    <View className="gap-[13px]">
+      <View className="gap-3.5 rounded-[20px] bg-fufu-surface p-[18px]">
+        <View className="h-3.5 w-[72%] rounded-md bg-[#F4E9DF]" />
+        <View className="h-3 w-[42%] rounded-md bg-[#F4E9DF]" />
+        <View className="h-3.5 w-[72%] rounded-md bg-[#F4E9DF]" />
       </View>
-      <View style={styles.skeletonCard}>
-        <View style={styles.skeletonLineWide} />
-        <View style={styles.skeletonLineShort} />
+      <View className="gap-3.5 rounded-[20px] bg-fufu-surface p-[18px]">
+        <View className="h-3.5 w-[72%] rounded-md bg-[#F4E9DF]" />
+        <View className="h-3 w-[42%] rounded-md bg-[#F4E9DF]" />
       </View>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  safeArea: {
-    backgroundColor: FUFU.background,
-    flex: 1,
-  },
-  contentContainer: {
-    paddingTop: 1,
-  },
-  content: {
-    gap: 25,
-    paddingHorizontal: 20,
-    paddingTop: 25,
-  },
-  profileHero: {
-    alignItems: "center",
-    backgroundColor: FUFU.ink,
-    borderRadius: 26,
-    flexDirection: "row",
-    gap: 13,
-    minHeight: 142,
-    padding: 18,
-  },
-  avatar: {
-    alignItems: "center",
-    backgroundColor: FUFU.primary,
-    borderColor: "rgba(255, 255, 255, 0.25)",
-    borderRadius: 34,
-    borderWidth: 1,
-    height: 68,
-    justifyContent: "center",
-    width: 68,
-  },
-  avatarText: {
-    color: FUFU.white,
-    fontFamily: "Outfit_800ExtraBold",
-    fontSize: 22,
-  },
-  heroCopy: {
-    flex: 1,
-    gap: 3,
-    minWidth: 0,
-  },
-  heroEyebrow: {
-    color: FUFU.butter,
-    fontFamily: "Outfit_700Bold",
-    fontSize: 10,
-    letterSpacing: 1.2,
-    textTransform: "uppercase",
-  },
-  heroName: {
-    color: FUFU.white,
-    fontFamily: "Outfit_700Bold",
-    fontSize: 22,
-  },
-  heroPhone: {
-    color: "rgba(255, 255, 255, 0.74)",
-    fontFamily: "Outfit_400Regular",
-    fontSize: 13,
-  },
-  heroMeta: {
-    color: "rgba(255, 255, 255, 0.5)",
-    fontFamily: "Outfit_400Regular",
-    fontSize: 11,
-    marginTop: 3,
-  },
-  editIcon: {
-    alignItems: "center",
-    backgroundColor: "rgba(255, 255, 255, 0.12)",
-    borderRadius: 12,
-    height: 36,
-    justifyContent: "center",
-    width: 36,
-  },
-  editIconText: {
-    color: FUFU.white,
-    fontSize: 18,
-  },
-  section: {
-    gap: 13,
-  },
-  sectionHeader: {
-    alignItems: "center",
-    flexDirection: "row",
-    justifyContent: "space-between",
-  },
-  sectionTitle: {
-    color: FUFU.ink,
-    fontFamily: "Outfit_700Bold",
-    fontSize: 20,
-  },
-  sectionAction: {
-    color: FUFU.primaryDeep,
-    fontFamily: "Outfit_600SemiBold",
-    fontSize: 13,
-  },
-  detailsCard: {
-    backgroundColor: FUFU.surface,
-    borderColor: FUFU.line,
-    borderRadius: 20,
-    borderWidth: 1,
-    gap: 0,
-    paddingHorizontal: 16,
-  },
-  profileRow: {
-    alignItems: "center",
-    borderBottomColor: FUFU.line,
-    borderBottomWidth: 1,
-    flexDirection: "row",
-    justifyContent: "space-between",
-    minHeight: 53,
-  },
-  rowLabel: {
-    color: FUFU.muted,
-    fontFamily: "Outfit_400Regular",
-    fontSize: 14,
-  },
-  rowValue: {
-    color: FUFU.ink,
-    flexShrink: 1,
-    fontFamily: "Outfit_600SemiBold",
-    fontSize: 14,
-    marginLeft: 18,
-    textAlign: "right",
-  },
-  success: {
-    color: FUFU.success,
-  },
-  danger: {
-    color: FUFU.danger,
-  },
-  addresses: {
-    gap: 11,
-  },
-  emptyAddress: {
-    alignItems: "center",
-    backgroundColor: FUFU.surface,
-    borderColor: FUFU.line,
-    borderRadius: 20,
-    borderWidth: 1,
-    flexDirection: "row",
-    gap: 13,
-    padding: 16,
-  },
-  emptyMark: {
-    alignItems: "center",
-    backgroundColor: FUFU.sageSoft,
-    borderRadius: 14,
-    color: FUFU.success,
-    fontFamily: "Outfit_700Bold",
-    fontSize: 22,
-    height: 42,
-    lineHeight: 42,
-    textAlign: "center",
-    width: 42,
-  },
-  emptyCopy: {
-    flex: 1,
-    gap: 3,
-  },
-  emptyTitle: {
-    color: FUFU.ink,
-    fontFamily: "Outfit_600SemiBold",
-    fontSize: 15,
-  },
-  emptyBody: {
-    color: FUFU.muted,
-    fontFamily: "Outfit_400Regular",
-    fontSize: 12,
-    lineHeight: 17,
-  },
-  accountCard: {
-    backgroundColor: FUFU.primarySoft,
-    borderRadius: 22,
-    gap: 8,
-    padding: 17,
-  },
-  accountTitle: {
-    color: FUFU.ink,
-    fontFamily: "Outfit_700Bold",
-    fontSize: 17,
-  },
-  accountBody: {
-    color: FUFU.muted,
-    fontFamily: "Outfit_400Regular",
-    fontSize: 13,
-    lineHeight: 19,
-  },
-  logoutButton: {
-    alignItems: "center",
-    alignSelf: "flex-start",
-    borderColor: "rgba(180, 35, 24, 0.24)",
-    borderRadius: 12,
-    borderWidth: 1,
-    marginTop: 4,
-    minHeight: 40,
-    justifyContent: "center",
-    paddingHorizontal: 15,
-  },
-  logoutText: {
-    color: FUFU.danger,
-    fontFamily: "Outfit_600SemiBold",
-    fontSize: 13,
-  },
-  skeletonStack: {
-    gap: 13,
-  },
-  skeletonCard: {
-    backgroundColor: FUFU.surface,
-    borderRadius: 20,
-    gap: 14,
-    padding: 18,
-  },
-  skeletonLineWide: {
-    backgroundColor: "#F4E9DF",
-    borderRadius: 6,
-    height: 14,
-    width: "72%",
-  },
-  skeletonLineShort: {
-    backgroundColor: "#F4E9DF",
-    borderRadius: 6,
-    height: 12,
-    width: "42%",
-  },
-  disabled: {
-    opacity: 0.45,
-  },
-  pressed: {
-    opacity: 0.72,
-    transform: [{ scale: 0.97 }],
-  },
-});

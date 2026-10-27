@@ -1,6 +1,5 @@
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Pressable, Text, View } from "react-native";
 import Animated, { FadeInDown } from "react-native-reanimated";
-import { FUFU } from "@/theme/colors";
 import type { DecimalValue } from "@/features/catalog/types";
 import { formatRwf } from "@/utils/catalog";
 
@@ -18,144 +17,44 @@ export function CartSummary({
   return (
     <Animated.View
       entering={FadeInDown.delay(120).duration(420)}
-      style={styles.card}
+      className="gap-[15px] rounded-[26px] bg-fufu-ink p-5"
     >
-      <View style={styles.heading}>
-        <Text style={styles.title}>Order summary</Text>
-        <Text style={styles.count}>
+      <View className="flex-row items-center justify-between">
+        <Text className="font-outfit-bold text-[19px] text-fufu-white">Order summary</Text>
+        <Text className="font-outfit text-xs text-[rgba(255,255,255,0.62)]">
           {itemCount} {itemCount === 1 ? "item" : "items"}
         </Text>
       </View>
 
-      <View style={styles.row}>
-        <Text style={styles.label}>Subtotal</Text>
-        <Text style={styles.value}>{formatRwf(subtotal)}</Text>
+      <View className="flex-row items-center justify-between">
+        <Text className="font-outfit text-sm text-[rgba(255,255,255,0.70)]">Subtotal</Text>
+        <Text className="font-outfit-medium text-sm text-fufu-white">{formatRwf(subtotal)}</Text>
       </View>
-      <View style={styles.row}>
-        <Text style={styles.label}>Delivery</Text>
-        <Text style={styles.delivery}>Calculated at checkout</Text>
+      <View className="flex-row items-center justify-between">
+        <Text className="font-outfit text-sm text-[rgba(255,255,255,0.70)]">Delivery</Text>
+        <Text className="font-outfit-medium text-xs text-fufu-butter">Calculated at checkout</Text>
       </View>
-      <View style={styles.divider} />
-      <View style={styles.row}>
-        <Text style={styles.totalLabel}>Total for now</Text>
-        <Text style={styles.total}>{formatRwf(subtotal)}</Text>
+      <View className="h-px bg-[rgba(255,255,255,0.16)]" />
+      <View className="flex-row items-center justify-between">
+        <Text className="font-outfit-semibold text-base text-fufu-white">Total for now</Text>
+        <Text className="font-outfit-bold text-[19px] text-fufu-butter">{formatRwf(subtotal)}</Text>
       </View>
 
-      <View style={styles.nextStep}>
-        <Text style={styles.nextStepMark}>✦</Text>
-        <Text style={styles.nextStepText}>
+      <View className="flex-row items-start gap-2 rounded-[14px] bg-[rgba(255,255,255,0.08)] p-[11px]">
+        <Text className="font-outfit text-sm text-fufu-butter">✦</Text>
+        <Text className="flex-1 font-outfit text-xs leading-[17px] text-[rgba(255,255,255,0.72)]">
           Delivery address and payment will be selected at checkout.
         </Text>
       </View>
 
       <Pressable
         accessibilityRole="button"
+        className="flex-row items-center justify-center gap-2 rounded-[14px] bg-fufu-primary py-[13px] active:opacity-80 active:scale-[0.98]"
         onPress={onContinueShopping}
-        style={({ pressed }) => [styles.button, pressed && styles.pressed]}
       >
-        <Text style={styles.buttonText}>Continue shopping</Text>
-        <Text style={styles.buttonArrow}>↗</Text>
+        <Text className="font-outfit-semibold text-sm text-fufu-white">Continue shopping</Text>
+        <Text className="font-outfit-bold text-[17px] text-fufu-butter">↗</Text>
       </Pressable>
     </Animated.View>
   );
 }
-
-const styles = StyleSheet.create({
-  card: {
-    backgroundColor: FUFU.ink,
-    borderRadius: 26,
-    gap: 15,
-    padding: 20,
-  },
-  heading: {
-    alignItems: "center",
-    flexDirection: "row",
-    justifyContent: "space-between",
-  },
-  title: {
-    color: FUFU.white,
-    fontFamily: "Outfit_700Bold",
-    fontSize: 19,
-  },
-  count: {
-    color: "rgba(255, 255, 255, 0.62)",
-    fontFamily: "Outfit_400Regular",
-    fontSize: 12,
-  },
-  row: {
-    alignItems: "center",
-    flexDirection: "row",
-    justifyContent: "space-between",
-  },
-  label: {
-    color: "rgba(255, 255, 255, 0.70)",
-    fontFamily: "Outfit_400Regular",
-    fontSize: 14,
-  },
-  value: {
-    color: FUFU.white,
-    fontFamily: "Outfit_500Medium",
-    fontSize: 14,
-  },
-  delivery: {
-    color: FUFU.butter,
-    fontFamily: "Outfit_500Medium",
-    fontSize: 12,
-  },
-  divider: {
-    backgroundColor: "rgba(255, 255, 255, 0.16)",
-    height: 1,
-  },
-  totalLabel: {
-    color: FUFU.white,
-    fontFamily: "Outfit_600SemiBold",
-    fontSize: 16,
-  },
-  total: {
-    color: FUFU.butter,
-    fontFamily: "Outfit_700Bold",
-    fontSize: 19,
-  },
-  nextStep: {
-    alignItems: "flex-start",
-    backgroundColor: "rgba(255, 255, 255, 0.08)",
-    borderRadius: 14,
-    flexDirection: "row",
-    gap: 8,
-    padding: 11,
-  },
-  nextStepMark: {
-    color: FUFU.butter,
-    fontSize: 14,
-  },
-  nextStepText: {
-    color: "rgba(255, 255, 255, 0.72)",
-    flex: 1,
-    fontFamily: "Outfit_400Regular",
-    fontSize: 12,
-    lineHeight: 17,
-  },
-  button: {
-    alignItems: "center",
-    backgroundColor: FUFU.primary,
-    borderRadius: 14,
-    flexDirection: "row",
-    gap: 8,
-    justifyContent: "center",
-    paddingVertical: 13,
-  },
-  buttonText: {
-    color: FUFU.white,
-    fontFamily: "Outfit_600SemiBold",
-    fontSize: 14,
-  },
-  buttonArrow: {
-    color: FUFU.butter,
-    fontFamily: "Outfit_700Bold",
-    fontSize: 17,
-  },
-  pressed: {
-    opacity: 0.82,
-    transform: [{ scale: 0.98 }],
-  },
-});

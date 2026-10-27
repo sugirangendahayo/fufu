@@ -1,5 +1,4 @@
-import { ScrollView, StyleSheet, Text, Pressable, View } from "react-native";
-import { FUFU } from "@/theme/colors";
+import { Pressable, ScrollView, Text, View } from "react-native";
 import type { CatalogCategory } from "@/features/catalog/types";
 import { CatalogImage } from "./catalog-image";
 
@@ -32,7 +31,7 @@ export function CategoryRail({
 
   return (
     <ScrollView
-      contentContainerStyle={styles.content}
+      contentContainerClassName="gap-2.5 pr-6"
       horizontal
       showsHorizontalScrollIndicator={false}
     >
@@ -43,22 +42,19 @@ export function CategoryRail({
           <Pressable
             accessibilityRole="button"
             accessibilityState={{ selected }}
+            className={`min-h-[54px] flex-row items-center gap-2 rounded-[18px] border px-2.5 py-[7px] ${selected ? "border-fufu-primary bg-fufu-primary" : "border-fufu-line bg-fufu-surface"} active:opacity-80 active:scale-[0.98]`}
             key={category.id}
             onPress={() => onSelect(category.slug)}
-            style={({ pressed }) => [
-              styles.item,
-              selected && styles.itemSelected,
-              pressed && styles.itemPressed,
-            ]}
           >
             {category.slug === "all" ? (
-              <View style={[styles.allIcon, selected && styles.allIconSelected]}>
-                <Text style={styles.allIconText}>✦</Text>
+              <View className={`h-[38px] w-[38px] items-center justify-center rounded-[13px] ${selected ? "bg-[rgba(255,255,255,0.22)]" : "bg-fufu-butter-soft"}`}>
+                <Text className="font-outfit-bold text-lg text-fufu-primary-deep">✦</Text>
               </View>
             ) : (
-              <View style={styles.imageWrap}>
+              <View className="h-[38px] w-[38px] overflow-hidden rounded-[13px] bg-fufu-primary-soft">
                 <CatalogImage
                   accessibilityLabel={`${category.name} category`}
+                  className="h-full w-full"
                   fallbackKey={category.slug}
                   uri={category.imageUrl}
                 />
@@ -66,7 +62,7 @@ export function CategoryRail({
             )}
             <Text
               numberOfLines={1}
-              style={[styles.label, selected && styles.labelSelected]}
+              className={`max-w-[108px] font-outfit-semibold text-sm ${selected ? "text-fufu-white" : "text-fufu-ink-soft"}`}
             >
               {category.name}
             </Text>
@@ -76,62 +72,3 @@ export function CategoryRail({
     </ScrollView>
   );
 }
-
-const styles = StyleSheet.create({
-  content: {
-    gap: 10,
-    paddingRight: 24,
-  },
-  item: {
-    alignItems: "center",
-    backgroundColor: FUFU.surface,
-    borderColor: FUFU.line,
-    borderRadius: 18,
-    borderWidth: 1,
-    flexDirection: "row",
-    gap: 8,
-    minHeight: 54,
-    paddingHorizontal: 10,
-    paddingVertical: 7,
-  },
-  itemPressed: {
-    opacity: 0.8,
-    transform: [{ scale: 0.98 }],
-  },
-  itemSelected: {
-    backgroundColor: FUFU.primary,
-    borderColor: FUFU.primary,
-  },
-  imageWrap: {
-    backgroundColor: FUFU.primarySoft,
-    borderRadius: 13,
-    height: 38,
-    overflow: "hidden",
-    width: 38,
-  },
-  allIcon: {
-    alignItems: "center",
-    backgroundColor: FUFU.butterSoft,
-    borderRadius: 13,
-    height: 38,
-    justifyContent: "center",
-    width: 38,
-  },
-  allIconSelected: {
-    backgroundColor: "rgba(255, 255, 255, 0.22)",
-  },
-  allIconText: {
-    color: FUFU.primaryDeep,
-    fontFamily: "Outfit_700Bold",
-    fontSize: 18,
-  },
-  label: {
-    color: FUFU.inkSoft,
-    fontFamily: "Outfit_600SemiBold",
-    fontSize: 14,
-    maxWidth: 108,
-  },
-  labelSelected: {
-    color: FUFU.white,
-  },
-});
