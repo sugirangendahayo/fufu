@@ -1,6 +1,5 @@
 import "../../global.css";
 
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
   Outfit_400Regular,
   Outfit_500Medium,
@@ -10,7 +9,8 @@ import {
   useFonts,
 } from "@expo-google-fonts/outfit";
 
-import { Redirect, Stack, type Href } from "expo-router";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { useEffect } from "react";
 import { OUTFIT } from "@/theme/fonts";
@@ -38,10 +38,11 @@ export default function RootLayout() {
 
   const { status, hydrate } = useAuthStore();
 
-  // Restore session from SecureStore on first mount.
+  // Restore the persisted session once on mount.
   useEffect(() => {
     void hydrate();
-  }, [hydrate]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     if ((fontsLoaded || fontError) && status !== "loading") {
@@ -49,17 +50,16 @@ export default function RootLayout() {
     }
   }, [fontError, fontsLoaded, status]);
 
-  // Keep the splash visible while fonts and session are both loading.
+  // Keep the native splash visible while both fonts and session load.
   if ((!fontsLoaded && !fontError) || status === "loading") {
     return null;
   }
 
-  // Already authenticated → go straight to the customer area.
-  // The customer layout will handle role-based routing if needed later.
-  const navigation =
-    status === "authenticated" ? (
-      <Redirect href={"/(customer)/(tabs)" as Href} />
-    ) : (
+  // Always render the Stack — redirects happen inside index.tsx once the
+  // navigator is mounted. Redirecting from here (before Stack) causes a
+  // blank white screen because there is no navigator context yet.
+  return (
+    <QueryClientProvider client={queryClient}>
       <Stack screenOptions={{ headerShown: false }}>
         <Stack.Screen name="index" />
         <Stack.Screen name="onboarding" />
@@ -69,9 +69,6 @@ export default function RootLayout() {
         <Stack.Screen name="(rider)" />
         <Stack.Screen name="(admin)" />
       </Stack>
-    );
-
-  return (
-    <QueryClientProvider client={queryClient}>{navigation}</QueryClientProvider>
+    </QueryClientProvider>
   );
 }
