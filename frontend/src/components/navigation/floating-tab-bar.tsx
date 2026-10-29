@@ -1,5 +1,6 @@
+import type { BottomTabBarProps } from "@react-navigation/bottom-tabs";
 import { useEffect, useState, type ReactNode } from "react";
-import { Keyboard, Platform, Pressable, View } from "react-native";
+import { Keyboard, Platform, Pressable, StyleSheet, View } from "react-native";
 import Animated, {
   Easing,
   useAnimatedStyle,
@@ -38,37 +39,6 @@ const SPRING = {
 } as const;
 const TIMING = { duration: 140, easing: Easing.out(Easing.cubic) } as const;
 
-type TabBarProps = {
-  state: {
-    routes: { key: string; name: string; params?: object }[];
-    index: number;
-  };
-  descriptors: Record<
-    string,
-    {
-      options: {
-        tabBarIcon?: (props: {
-          focused: boolean;
-          color: string;
-          size: number;
-        }) => ReactNode;
-        tabBarAccessibilityLabel?: string;
-        title?: string;
-        tabBarButtonTestID?: string;
-        href?: unknown;
-      };
-    }
-  >;
-  navigation: {
-    emit: (event: {
-      type: "tabPress" | "tabLongPress";
-      target: string;
-      canPreventDefault?: boolean;
-    }) => { defaultPrevented?: boolean };
-    navigate: (name: string, params?: object) => void;
-  };
-};
-
 /**
  * Space the floating bar takes at the bottom, margin included. The bar floats
  * OVER the screens, so nothing reserves room for it: add this to the bottom
@@ -84,7 +54,7 @@ export function FloatingTabBar({
   state,
   descriptors,
   navigation,
-}: TabBarProps) {
+}: BottomTabBarProps) {
   const insets = useSafeAreaInsets();
 
   // Only routes that opt in with an icon, and aren't hidden with `href: null`.
@@ -92,7 +62,10 @@ export function FloatingTabBar({
   // extra file such as explore.tsx would show up as an empty tab.
   const tabs = state.routes.filter((route) => {
     const options = descriptors[route.key].options;
-    return typeof options.tabBarIcon === "function" && options.href !== null;
+    return (
+      typeof options.tabBarIcon === "function" &&
+      (options as { href?: unknown }).href !== null
+    );
   });
   const focusedKey = state.routes[state.index]?.key;
   const activeIndex = tabs.findIndex((route) => route.key === focusedKey);
@@ -144,18 +117,11 @@ export function FloatingTabBar({
     // screen behind it; only the pill itself is touchable.
     <Animated.View
       accessibilityRole="tablist"
-      className="absolute left-0 right-0 items-center"
       pointerEvents={keyboardOpen ? "none" : "box-none"}
-      style={[{ bottom: insets.bottom + LIFT }, wrapStyle]}
+      style={[styles.wrap, { bottom: insets.bottom + LIFT }, wrapStyle]}
     >
-      <View
-        className="h-16 flex-row rounded-[32px] bg-fufu-ink px-2 shadow-2xl"
-        style={{ width: tabs.length * SLOT + BAR_PAD * 2 }}
-      >
-        <Animated.View
-          className="absolute top-2 h-12 w-12 rounded-[24px] bg-fufu-primary"
-          style={[{ left: BAR_PAD + (SLOT - BUBBLE) / 2 }, bubbleStyle]}
-        />
+      <View style={[styles.bar, { width: tabs.length * SLOT + BAR_PAD * 2 }]}>
+        <Animated.View style={[styles.bubble, bubbleStyle]} />
         {tabs.map((route, index) => {
           const { options } = descriptors[route.key];
           const focused = route.key === focusedKey;
@@ -238,7 +204,6 @@ function TabItem({
       accessibilityLabel={label}
       accessibilityRole="tab"
       accessibilityState={{ selected: focused }}
-      className="h-16 w-16 items-center justify-center"
       onLongPress={onLongPress}
       onPress={onPress}
       onPressIn={() => {
@@ -247,14 +212,49 @@ function TabItem({
       onPressOut={() => {
         press.value = withTiming(0, TIMING);
       }}
+      style={styles.item}
       testID={testID}
     >
-      <Animated.View className="h-6 w-6" style={scale}>
+      <Animated.View style={[styles.icon, scale]}>
         <Animated.View style={away}>{renderIcon(false)}</Animated.View>
-        <Animated.View className="absolute inset-0" style={here}>
+        <Animated.View style={[StyleSheet.absoluteFill, here]}>
           {renderIcon(true)}
         </Animated.View>
       </Animated.View>
     </Pressable>
   );
 }
+
+const styles = StyleSheet.create({
+  wrap: { alignItems: "center", left: 0, position: "absolute", right: 0 },
+  bar: {
+    backgroundColor: COLORS.bar,
+    borderRadius: BAR_HEIGHT / 2,
+    elevation: 12,
+    flexDirection: "row",
+    height: BAR_HEIGHT,
+    paddingHorizontal: BAR_PAD,
+    shadowColor: COLORS.bar,
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.3,
+    shadowRadius: 18,
+  },
+  // Absolute, so it sits behind the tabs; centred on the first slot, then
+  // translated by position * SLOT.
+  bubble: {
+    backgroundColor: COLORS.bubble,
+    borderRadius: BUBBLE / 2,
+    height: BUBBLE,
+    left: BAR_PAD + (SLOT - BUBBLE) / 2,
+    position: "absolute",
+    top: (BAR_HEIGHT - BUBBLE) / 2,
+    width: BUBBLE,
+  },
+  item: {
+    alignItems: "center",
+    height: BAR_HEIGHT,
+    justifyContent: "center",
+    width: SLOT,
+  },
+  icon: { height: ICON, width: ICON },
+});
