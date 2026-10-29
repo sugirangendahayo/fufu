@@ -1,5 +1,12 @@
+import { useEffect } from "react";
 import { ActivityIndicator, Pressable, Text, View } from "react-native";
-import Animated, { FadeInDown } from "react-native-reanimated";
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from "react-native-reanimated";
+import { CheckGlyph, PlusGlyph } from "@/components/ui/glyphs";
+import { TIMING } from "@/components/ui/motion";
 import type { CatalogProduct } from "@/features/catalog/types";
 import { FUFU } from "@/theme/colors";
 import { formatRwf, getProductPrice } from "@/utils/catalog";
@@ -7,17 +14,28 @@ import { CatalogImage } from "./catalog-image";
 
 type ProductCardProps = {
   added?: boolean;
+  /** Fixed-width variant for a horizontal rail. */
   compact?: boolean;
+  /** @deprecated The staggered entrance animation is gone; kept so callers still compile. */
   index?: number;
   loading?: boolean;
   onAdd?: (product: CatalogProduct) => void;
   product: CatalogProduct;
 };
 
+/**
+ * Flat on purpose: a tinted square for the food, then the name and the price
+ * on the page itself. The old card stacked a border, a shadow, a badge, a
+ * category line and a coloured price to say the same thing. The add button
+ * lives inside the image corner, so there's no extra row.
+ *
+ * Layout contract kept from before, so the Menu grid is unaffected: in a grid
+ * the card is `flex-1 min-w-0`; `compact` is a fixed width; the card owns its
+ * bottom margin.
+ */
 export function ProductCard({
   added = false,
   compact = false,
-  index = 0,
   loading = false,
   onAdd,
   product,
@@ -25,62 +43,101 @@ export function ProductCard({
   const soldOut = product.inventory?.stockQuantity === 0;
 
   return (
-    <Animated.View
-      entering={FadeInDown.delay(Math.min(index, 7) * 45)
-        .duration(420)
-        .springify()
-        .damping(17)}
-      className={`mb-3.5 min-w-0 flex-1 overflow-hidden rounded-[22px] border border-fufu-line bg-fufu-surface shadow-lg ${compact ? "w-[178px] max-w-[188px]" : ""}`}
-    >
-      <View className="relative h-[142px] overflow-hidden rounded-t-[22px] bg-fufu-primary-soft">
-        <CatalogImage
-          accessibilityLabel={product.name}
-          className="h-full w-full"
-          fallbackKey={product.slug}
-          uri={product.imageUrl}
-        />
-        {product.isFeatured ? (
-          <View className="absolute left-2.5 top-2.5 rounded-[9px] bg-[rgba(255,255,255,0.92)] px-2 py-1">
-            <Text className="font-outfit-bold text-[11px] text-fufu-primary-deep">
-              Popular
-            </Text>
+    <View className={`mb-5 ${compact ? "w-[168px]" : "min-w-0 flex-1"}`}>
+      <View className="aspect-square overflow-hidden rounded-[22px] bg-fufu-primary-soft">
+        <View className={soldOut ? "h-full w-full opacity-50" : "h-full w-full"}>
+          <CatalogImage
+            accessibilityLabel={product.name}
+            className="h-full w-full"
+            fallbackKey={product.slug}
+            uri={product.imageUrl}
+          />
+        </View>
+        {onAdd && !soldOut ? (
+          <View className="absolute bottom-2.5 right-2.5">
+            <AddButton
+              added={added}
+              label={`Add ${product.name} to cart`}
+              loading={loading}
+              onPress={() => onAdd(product)}
+            />
           </View>
         ) : null}
       </View>
+      <Text
+        className="mt-3 min-h-10 font-outfit-semibold text-[15px] leading-5 text-fufu-ink"
+        numberOfLines={2}
+      >
+        {product.name}
+      </Text>
+      <Text className="mt-1 font-outfit-medium text-[14px] text-fufu-muted">
+        {soldOut ? "Sold out" : formatRwf(getProductPrice(product))}
+      </Text>
+    </View>
+  );
+}
 
-      <View className="gap-1.5 px-[13px] py-[13px]">
-        <Text numberOfLines={1} className="font-outfit-medium text-xs tracking-[0.2px] text-fufu-muted">
-          {product.category?.name ?? "Fufu kitchen"}
-        </Text>
-        <Text numberOfLines={2} className="min-h-10 font-outfit-semibold text-base leading-5 text-fufu-ink">
-          {product.name}
-        </Text>
-        <View className="mt-0.5 flex-row items-center justify-between gap-2">
-          <Text className="flex-1 font-outfit-bold text-sm text-fufu-primary-deep">
-            {formatRwf(getProductPrice(product))}
-          </Text>
-          {onAdd ? (
-            <Pressable
-              accessibilityLabel={
-                soldOut ? `${product.name} is sold out` : `Add ${product.name} to cart`
-              }
-              accessibilityRole="button"
-              accessibilityState={{ busy: loading, disabled: soldOut || loading }}
-              className={`h-9 w-9 items-center justify-center rounded-xl ${added ? "bg-fufu-success" : soldOut ? "bg-fufu-line" : "bg-fufu-primary"} ${loading ? "opacity-70" : ""} active:scale-95 active:opacity-80`}
-              disabled={soldOut || loading}
-              onPress={() => onAdd(product)}
-            >
-              {loading ? (
-                <ActivityIndicator color={FUFU.white} size="small" />
-              ) : (
-                <Text className={`font-outfit-bold text-[23px] leading-[25px] ${added ? "text-[18px] text-fufu-white" : "text-fufu-white"}`}>
-                  {soldOut ? "—" : added ? "✓" : "+"}
-                </Text>
-              )}
-            </Pressable>
-          ) : null}
-        </View>
-      </View>
-    </Animated.View>
+/**
+ * Plus -> spinner -> check as a crossfade, not three class swaps. Two values
+ * (`done`, `busy`) drive every layer, so the states can overlap mid-flight and
+ * a fast add never flashes the wrong glyph. The circle is ink at rest and turns
+ * primary once the item is in the cart: orange only ever means "done".
+ * 40pt visible, 52pt touchable (the old button was 36pt with no hit slop).
+ */
+function AddButton({
+  added,
+  label,
+  loading,
+  onPress,
+}: {
+  added: boolean;
+  label: string;
+  loading: boolean;
+  onPress: () => void;
+}) {
+  const done = useSharedValue(added ? 1 : 0);
+  const busy = useSharedValue(loading ? 1 : 0);
+
+  useEffect(() => {
+    done.value = withTiming(added ? 1 : 0, TIMING);
+  }, [added, done]);
+  useEffect(() => {
+    busy.value = withTiming(loading ? 1 : 0, TIMING);
+  }, [loading, busy]);
+
+  const doneFill = useAnimatedStyle(() => ({ opacity: done.value }));
+  const plus = useAnimatedStyle(() => ({
+    opacity: (1 - done.value) * (1 - busy.value),
+  }));
+  const spinner = useAnimatedStyle(() => ({ opacity: busy.value }));
+  const check = useAnimatedStyle(() => ({
+    opacity: done.value * (1 - busy.value),
+  }));
+
+  return (
+    <Pressable
+      accessibilityLabel={label}
+      accessibilityRole="button"
+      accessibilityState={{ busy: loading }}
+      className="h-10 w-10 items-center justify-center overflow-hidden rounded-full bg-fufu-ink active:scale-95"
+      disabled={loading}
+      hitSlop={6}
+      onPress={onPress}
+    >
+      <Animated.View
+        className="absolute inset-0 bg-fufu-primary"
+        pointerEvents="none"
+        style={doneFill}
+      />
+      <Animated.View className="absolute" pointerEvents="none" style={plus}>
+        <PlusGlyph color={FUFU.white} size={20} strokeWidth={2} />
+      </Animated.View>
+      <Animated.View className="absolute" pointerEvents="none" style={spinner}>
+        <ActivityIndicator color={FUFU.white} size="small" />
+      </Animated.View>
+      <Animated.View className="absolute" pointerEvents="none" style={check}>
+        <CheckGlyph color={FUFU.white} size={20} strokeWidth={2} />
+      </Animated.View>
+    </Pressable>
   );
 }
