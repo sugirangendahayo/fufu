@@ -1,5 +1,5 @@
-import { SymbolView } from "expo-symbols";
 import { Pressable, Text, TextInput, View } from "react-native";
+import { CloseGlyph, SearchGlyph } from "@/components/ui/glyphs";
 import { FUFU } from "@/theme/colors";
 
 type SearchFieldProps = {
@@ -14,16 +14,12 @@ export function SearchField({
   value,
 }: SearchFieldProps) {
   return (
-    <View className="min-h-[54px] flex-row items-center gap-2.5 rounded-2xl border border-fufu-line bg-fufu-surface px-4">
-      <SymbolView
-        name={{ android: "search", ios: "magnifyingglass", web: "search" }}
-        size={20}
-        tintColor={FUFU.muted}
-      />
+    <View className="h-[52px] flex-row items-center gap-3 rounded-2xl border border-fufu-line bg-fufu-surface px-4">
+      <SearchGlyph color={FUFU.muted} size={20} />
       <TextInput
         accessibilityLabel="Search menu"
         autoCorrect={false}
-        className="flex-1 py-1 font-outfit text-base text-fufu-ink"
+        className="h-full flex-1 py-0 font-outfit text-[15px] text-fufu-ink"
         clearButtonMode="never"
         onChangeText={onChangeText}
         placeholder={placeholder}
@@ -35,15 +31,41 @@ export function SearchField({
         <Pressable
           accessibilityLabel="Clear search"
           accessibilityRole="button"
-          className="h-7 w-7 items-center justify-center rounded-[10px] bg-fufu-primary-soft active:opacity-70"
-          hitSlop={10}
+          className="h-6 w-6 items-center justify-center rounded-full bg-fufu-primary-soft active:opacity-70"
+          hitSlop={12}
           onPress={() => onChangeText("")}
         >
-          <Text className="font-outfit-medium text-[22px] leading-6 text-fufu-primary-deep">
-            ×
-          </Text>
+          <CloseGlyph color={FUFU.ink} size={14} strokeWidth={2} />
         </Pressable>
       ) : null}
     </View>
+  );
+}
+
+/**
+ * Looks like the field but is a button: on Home, search lives on the Menu tab,
+ * so a real input here would put the keyboard on the wrong screen. `hint` is
+ * built from real category names by the caller, so the placeholder never
+ * promises food the menu doesn't have.
+ */
+export function SearchEntry({
+  hint = "Search the menu",
+  onPress,
+}: {
+  hint?: string;
+  onPress: () => void;
+}) {
+  return (
+    <Pressable
+      accessibilityLabel="Search the menu"
+      accessibilityRole="search"
+      className="h-[52px] flex-row items-center gap-3 rounded-2xl border border-fufu-line bg-fufu-surface px-4 active:opacity-80"
+      onPress={onPress}
+    >
+      <SearchGlyph color={FUFU.muted} size={20} />
+      <Text numberOfLines={1} className="flex-1 font-outfit text-[15px] text-fufu-muted">
+        {hint}
+      </Text>
+    </Pressable>
   );
 }
