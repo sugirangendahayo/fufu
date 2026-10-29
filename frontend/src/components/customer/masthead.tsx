@@ -1,4 +1,4 @@
-import { Image } from "expo-image";
+import { Image } from "@/components/ui/image";
 import { Text, View } from "react-native";
 
 // The same ingredients as the login screens (assets/images/auth), so the app

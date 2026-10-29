@@ -1,4 +1,4 @@
-import { Image } from "expo-image";
+import { Image } from "@/components/ui/image";
 import { router, type Href } from "expo-router";
 import { useCallback, useRef, useState } from "react";
 import { Dimensions, Pressable, Text, View } from "react-native";

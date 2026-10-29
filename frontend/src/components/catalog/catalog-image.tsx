@@ -1,4 +1,4 @@
-import { Image } from "expo-image";
+import { Image } from "@/components/ui/image";
 import { useState } from "react";
 import { isUsableImageUrl } from "@/utils/catalog";
 

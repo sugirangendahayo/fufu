@@ -20,6 +20,7 @@ type ProductCardProps = {
   index?: number;
   loading?: boolean;
   onAdd?: (product: CatalogProduct) => void;
+  onPress?: (product: CatalogProduct) => void;
   product: CatalogProduct;
 };
 
@@ -38,6 +39,7 @@ export function ProductCard({
   compact = false,
   loading = false,
   onAdd,
+  onPress,
   product,
 }: ProductCardProps) {
   const soldOut = product.inventory?.stockQuantity === 0;
@@ -45,14 +47,20 @@ export function ProductCard({
   return (
     <View className={`mb-5 ${compact ? "w-[168px]" : "min-w-0 flex-1"}`}>
       <View className="aspect-square overflow-hidden rounded-[22px] bg-fufu-primary-soft">
-        <View className={soldOut ? "h-full w-full opacity-50" : "h-full w-full"}>
+        <Pressable
+          accessibilityLabel={`Open ${product.name}`}
+          accessibilityRole={onPress ? "button" : undefined}
+          className={soldOut ? "h-full w-full opacity-50" : "h-full w-full"}
+          disabled={!onPress}
+          onPress={() => onPress?.(product)}
+        >
           <CatalogImage
             accessibilityLabel={product.name}
             className="h-full w-full"
             fallbackKey={product.slug}
             uri={product.imageUrl}
           />
-        </View>
+        </Pressable>
         {onAdd && !soldOut ? (
           <View className="absolute bottom-2.5 right-2.5">
             <AddButton

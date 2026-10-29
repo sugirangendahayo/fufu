@@ -91,3 +91,17 @@ export function ChevronDownGlyph({ color, size, strokeWidth = 1.75 }: GlyphProps
     </Glyph>
   );
 }
+
+export function ArrowRightGlyph({ color, size, strokeWidth = 1.75 }: GlyphProps) {
+  return (
+    <Glyph size={size}>
+      <Path
+        d="M5 12h14M13.5 6.5L19 12l-5.5 5.5"
+        stroke={color}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={strokeWidth}
+      />
+    </Glyph>
+  );
+}

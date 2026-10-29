@@ -2,6 +2,7 @@ import { apiRequest } from "@/lib/api-client";
 import type {
   CatalogCategory,
   CatalogCombo,
+  CatalogProduct,
   ProductList,
 } from "./types";
 
@@ -46,4 +47,12 @@ export const catalogApi = {
 
   listProducts: (query: ProductQuery = {}, signal?: AbortSignal) =>
     apiRequest<ProductList>(`/products${toQuery(query)}`, { signal }),
+
+  getProduct: async (id: string, signal?: AbortSignal) => {
+    const response = await apiRequest<{ data: CatalogProduct }>(
+      `/products/${encodeURIComponent(id)}`,
+      { signal },
+    );
+    return response.data;
+  },
 };

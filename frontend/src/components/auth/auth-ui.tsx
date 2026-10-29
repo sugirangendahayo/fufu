@@ -1,4 +1,4 @@
-import { Image } from "expo-image";
+import { Image } from "@/components/ui/image";
 import { useEffect, type ReactNode } from "react";
 import {
   ActivityIndicator,
