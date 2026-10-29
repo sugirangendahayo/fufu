@@ -1,15 +1,28 @@
-import { Pressable, ScrollView, Text, View } from "react-native";
+import { useEffect } from "react";
+import { Pressable, ScrollView } from "react-native";
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from "react-native-reanimated";
+import { TIMING } from "@/components/ui/motion";
 import type { CatalogCategory } from "@/features/catalog/types";
-import { CatalogImage } from "./catalog-image";
 
 type CategoryRailProps = {
   categories: CatalogCategory[];
   onSelect: (slug: string) => void;
   selectedSlug?: string;
   showAll?: boolean;
+  /**
+   * Full-bleed. The rail pads itself (px-5), so chips slide off the edge of the
+   * screen. Inside a padded parent they were clipped 20pt in from the edge
+   * mid-scroll. Off by default so existing callers keep their layout.
+   */
+  bleed?: boolean;
 };
 
 export function CategoryRail({
+  bleed = false,
   categories,
   onSelect,
   selectedSlug,
@@ -31,44 +44,77 @@ export function CategoryRail({
 
   return (
     <ScrollView
-      contentContainerClassName="gap-2.5 pr-6"
+      contentContainerClassName={bleed ? "gap-2 px-5" : "gap-2 pr-6"}
       horizontal
       showsHorizontalScrollIndicator={false}
     >
-      {options.map((category) => {
-        const selected = selectedSlug === category.slug;
-
-        return (
-          <Pressable
-            accessibilityRole="button"
-            accessibilityState={{ selected }}
-            className={`min-h-[54px] flex-row items-center gap-2 rounded-[18px] border px-2.5 py-[7px] ${selected ? "border-fufu-primary bg-fufu-primary" : "border-fufu-line bg-fufu-surface"} active:opacity-80 active:scale-[0.98]`}
-            key={category.id}
-            onPress={() => onSelect(category.slug)}
-          >
-            {category.slug === "all" ? (
-              <View className={`h-[38px] w-[38px] items-center justify-center rounded-[13px] ${selected ? "bg-[rgba(255,255,255,0.22)]" : "bg-fufu-butter-soft"}`}>
-                <Text className="font-outfit-bold text-lg text-fufu-primary-deep">✦</Text>
-              </View>
-            ) : (
-              <View className="h-[38px] w-[38px] overflow-hidden rounded-[13px] bg-fufu-primary-soft">
-                <CatalogImage
-                  accessibilityLabel={`${category.name} category`}
-                  className="h-full w-full"
-                  fallbackKey={category.slug}
-                  uri={category.imageUrl}
-                />
-              </View>
-            )}
-            <Text
-              numberOfLines={1}
-              className={`max-w-[108px] font-outfit-semibold text-sm ${selected ? "text-fufu-white" : "text-fufu-ink-soft"}`}
-            >
-              {category.name}
-            </Text>
-          </Pressable>
-        );
-      })}
+      {options.map((category) => (
+        <Chip
+          key={category.id}
+          label={category.name}
+          onPress={() => onSelect(category.slug)}
+          selected={selectedSlug === category.slug}
+        />
+      ))}
     </ScrollView>
+  );
+}
+
+/**
+ * Text only. The 38pt thumbnails (and a fallback collage squeezed into them)
+ * were most of the old rail's noise; the food belongs in the product tiles.
+ *
+ * Selection is one value (0 -> 1) that fades a filled layer over an outlined
+ * one, and swaps the two labels with it, so a chip never snaps between looks.
+ * Both layers are sibling views, so no colour value needs to be known here.
+ */
+function Chip({
+  label,
+  onPress,
+  selected,
+}: {
+  label: string;
+  onPress: () => void;
+  selected: boolean;
+}) {
+  const progress = useSharedValue(selected ? 1 : 0);
+  useEffect(() => {
+    progress.value = withTiming(selected ? 1 : 0, TIMING);
+  }, [progress, selected]);
+
+  const idle = useAnimatedStyle(() => ({ opacity: 1 - progress.value }));
+  const active = useAnimatedStyle(() => ({ opacity: progress.value }));
+
+  return (
+    <Pressable
+      accessibilityRole="button"
+      accessibilityState={{ selected }}
+      className="h-10 max-w-[180px] justify-center rounded-full px-4 active:opacity-80"
+      onPress={onPress}
+    >
+      <Animated.View
+        className="absolute inset-0 rounded-full border border-fufu-line bg-fufu-surface"
+        style={idle}
+      />
+      <Animated.View
+        className="absolute inset-0 rounded-full bg-fufu-ink"
+        style={active}
+      />
+      {/* The in-flow label sizes the chip; the white one overlays it. */}
+      <Animated.Text
+        className="font-outfit-semibold text-[14px] leading-5 text-fufu-ink-soft"
+        numberOfLines={1}
+        style={idle}
+      >
+        {label}
+      </Animated.Text>
+      <Animated.Text
+        className="absolute left-4 right-4 top-2.5 font-outfit-semibold text-[14px] leading-5 text-fufu-white"
+        numberOfLines={1}
+        style={active}
+      >
+        {label}
+      </Animated.Text>
+    </Pressable>
   );
 }
