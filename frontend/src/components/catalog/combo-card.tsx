@@ -8,16 +8,22 @@ type ComboCardProps = {
   onPress?: (combo: CatalogCombo) => void;
 };
 
+/**
+ * A row, not a card: image, name, one line of description, price. It's full
+ * width, so a stack of combos reads as a list instead of a third horizontal
+ * scroller. (The old one was a fixed 300pt dark card; inside a horizontal
+ * scroller, wrap this in a View with a fixed width.)
+ */
 export function ComboCard({ combo, onPress }: ComboCardProps) {
   return (
     <Pressable
-      accessibilityLabel={`${combo.name} combo`}
+      accessibilityLabel={`${combo.name} combo, ${formatRwf(combo.price)}`}
       accessibilityRole={onPress ? "button" : undefined}
-      className="min-h-[170px] w-[300px] flex-row overflow-hidden rounded-3xl bg-fufu-ink active:opacity-90 active:scale-[0.99]"
+      className="flex-row items-center gap-4 active:opacity-80"
       disabled={!onPress}
       onPress={() => onPress?.(combo)}
     >
-      <View className="w-[126px] self-stretch bg-[#442A1D]">
+      <View className="h-[88px] w-[88px] overflow-hidden rounded-[20px] bg-fufu-primary-soft">
         <CatalogImage
           accessibilityLabel={combo.name}
           className="h-full w-full"
@@ -25,22 +31,22 @@ export function ComboCard({ combo, onPress }: ComboCardProps) {
           uri={combo.imageUrl}
         />
       </View>
-      <View className="flex-1 justify-center gap-1.5 px-4 py-[17px]">
-        <Text className="font-outfit-bold text-[10px] tracking-[1.1px] text-fufu-butter">
-          FUFU COMBO
-        </Text>
-        <Text numberOfLines={1} className="font-outfit-bold text-xl text-fufu-white">
+      <View className="min-w-0 flex-1 gap-1">
+        <Text
+          className="font-outfit-semibold text-[16px] leading-[22px] text-fufu-ink"
+          numberOfLines={1}
+        >
           {combo.name}
         </Text>
         {combo.description ? (
           <Text
+            className="font-outfit text-[13px] leading-[18px] text-fufu-muted"
             numberOfLines={2}
-            className="font-outfit text-xs leading-[17px] text-[rgba(255,255,255,0.70)]"
           >
             {combo.description}
           </Text>
         ) : null}
-        <Text className="mt-0.5 font-outfit-bold text-[15px] text-fufu-white">
+        <Text className="font-outfit-bold text-[14px] text-fufu-ink">
           {formatRwf(combo.price)}
         </Text>
       </View>

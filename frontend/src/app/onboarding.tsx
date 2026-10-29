@@ -19,7 +19,7 @@ const slides = [
   {
     image: require("@/assets/images/onboarding1.png"),
     title: "Your favourite food,\njust a few taps away.",
-    body: "From juicy burgers and delicious pizza to crispy chicken, discover your cravings and find your next favourite meal.",
+    body: "From juicy burgers and delicious pizza to crispy chicken; discover your cravings and find your next favourite meal.",
     tint: "#E95F18",
   },
   {
