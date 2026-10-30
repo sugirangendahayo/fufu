@@ -132,3 +132,16 @@ export function PencilGlyph({ color, size, strokeWidth = 1.75 }: GlyphProps) {
     </Glyph>
   );
 }
+export function BellGlyph({ color, size, strokeWidth = 1.75 }: GlyphProps) {
+  return (
+    <Glyph size={size}>
+      <Path
+        d="M18.5 14.5v-3a6.5 6.5 0 0 0-13 0v3l-1.5 1.5v.5h16v-.5l-1.5-1.5ZM12 21a2.5 2.5 0 0 0 2.5-2.5h-5A2.5 2.5 0 0 0 12 21Z"
+        stroke={color}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={strokeWidth}
+      />
+    </Glyph>
+  );
+}
