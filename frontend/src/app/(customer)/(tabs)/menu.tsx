@@ -41,6 +41,13 @@ export default function MenuScreen() {
     router.push("/(customer)/(tabs)/profile" as Href);
   }, []);
 
+  const openProduct = useCallback((product: { id: string }) => {
+    router.push({
+      pathname: "/(customer)/product/[id]",
+      params: { id: product.id },
+    } as unknown as Href);
+  }, []);
+
   const selectCategory = useCallback((slug: string) => {
     router.setParams({ category: slug });
   }, []);
@@ -148,6 +155,7 @@ export default function MenuScreen() {
             index={index}
             loading={addingId === item.id}
             onAdd={addToCart}
+            onPress={openProduct}
             product={item}
           />
         )}

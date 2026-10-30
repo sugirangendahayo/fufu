@@ -24,7 +24,7 @@ export function useAddToCart() {
   );
 
   const addToCart = useCallback(
-    async (product: CatalogProduct) => {
+    async (product: CatalogProduct, requestedVariantId?: string) => {
       if (addingRef.current) return;
 
       setError(null);
@@ -34,6 +34,11 @@ export function useAddToCart() {
       }
 
       const variant =
+        (requestedVariantId
+          ? product.variants.find(
+              (item) => item.id === requestedVariantId && item.isActive,
+            )
+          : undefined) ??
         product.variants.find((item) => item.isActive && item.isDefault) ??
         product.variants.find((item) => item.isActive);
 

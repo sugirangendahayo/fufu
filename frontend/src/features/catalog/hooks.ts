@@ -5,6 +5,7 @@ export const catalogKeys = {
   categories: ["catalog", "categories"] as const,
   combos: ["catalog", "combos"] as const,
   products: (query: ProductQuery) => ["catalog", "products", query] as const,
+  product: (id: string) => ["catalog", "product", id] as const,
 };
 
 export function useCategories() {
@@ -27,6 +28,15 @@ export function useProducts(query: ProductQuery = {}) {
   return useQuery({
     queryFn: ({ signal }) => catalogApi.listProducts(query, signal),
     queryKey: catalogKeys.products(query),
+    staleTime: 2 * 60 * 1000,
+  });
+}
+
+export function useProduct(id?: string) {
+  return useQuery({
+    enabled: Boolean(id),
+    queryFn: ({ signal }) => catalogApi.getProduct(id as string, signal),
+    queryKey: catalogKeys.product(id ?? ""),
     staleTime: 2 * 60 * 1000,
   });
 }

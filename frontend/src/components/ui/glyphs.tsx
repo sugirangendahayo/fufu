@@ -91,3 +91,57 @@ export function ChevronDownGlyph({ color, size, strokeWidth = 1.75 }: GlyphProps
     </Glyph>
   );
 }
+
+export function ArrowRightGlyph({ color, size, strokeWidth = 1.75 }: GlyphProps) {
+  return (
+    <Glyph size={size}>
+      <Path
+        d="M5 12h14M13.5 6.5L19 12l-5.5 5.5"
+        stroke={color}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={strokeWidth}
+      />
+    </Glyph>
+  );
+}
+export function LocationGlyph({ color, size, strokeWidth = 1.75 }: GlyphProps) {
+  return (
+    <Glyph size={size}>
+      <Path
+        d="M19 10.5c0 4.4-7 10-7 10s-7-5.6-7-10a7 7 0 1 1 14 0Z"
+        stroke={color}
+        strokeLinejoin="round"
+        strokeWidth={strokeWidth}
+      />
+      <Circle cx={12} cy={10.5} r={2.25} stroke={color} strokeWidth={strokeWidth} />
+    </Glyph>
+  );
+}
+
+export function PencilGlyph({ color, size, strokeWidth = 1.75 }: GlyphProps) {
+  return (
+    <Glyph size={size}>
+      <Path
+        d="m5 19 1.1-4.2L15.8 5a2.1 2.1 0 0 1 3 3l-9.3 9.7L5 19Z"
+        stroke={color}
+        strokeLinejoin="round"
+        strokeWidth={strokeWidth}
+      />
+      <Path d="m13.8 7 3.2 3.2" stroke={color} strokeWidth={strokeWidth} />
+    </Glyph>
+  );
+}
+export function BellGlyph({ color, size, strokeWidth = 1.75 }: GlyphProps) {
+  return (
+    <Glyph size={size}>
+      <Path
+        d="M18.5 14.5v-3a6.5 6.5 0 0 0-13 0v3l-1.5 1.5v.5h16v-.5l-1.5-1.5ZM12 21a2.5 2.5 0 0 0 2.5-2.5h-5A2.5 2.5 0 0 0 12 21Z"
+        stroke={color}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={strokeWidth}
+      />
+    </Glyph>
+  );
+}

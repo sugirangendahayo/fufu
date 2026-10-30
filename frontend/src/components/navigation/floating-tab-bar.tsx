@@ -1,4 +1,5 @@
 import type { BottomTabBarProps } from "@react-navigation/bottom-tabs";
+import { BlurView } from "expo-blur";
 import { useEffect, useState, type ReactNode } from "react";
 import { Keyboard, Platform, Pressable, StyleSheet, View } from "react-native";
 import Animated, {
@@ -19,12 +20,16 @@ const BUBBLE = 48; // the orange circle
 const ICON = 24;
 const LIFT = 12; // gap between the pill and the safe-area edge
 
-// FUFU tokens (the same hexes as AUTH in auth-ui.tsx): the bar is the warm
-// near-black text colour, the bubble is the primary, and inactive icons are the
-// cream background at 72%. Orange is the only accent: it marks where you are.
+// FUFU tokens (the same hexes as AUTH in auth-ui.tsx). The bar is now glass:
+// a blurred backdrop with a translucent dark tint over it, rather than a flat
+// fill, so content scrolling underneath shows through softly. The bubble
+// keeps the primary orange but gains a glow halo so it reads as lit from
+// within the glass rather than printed on top of it.
 const COLORS = {
-  bar: "#28170E",
+  barTint: "rgba(40, 23, 14, 0.55)", // translucent version of the old #28170E
+  barBorder: "rgba(255, 255, 255, 0.14)", // hairline edge highlight
   bubble: "#E95F18",
+  bubbleGlow: "rgba(233, 95, 24, 0.45)",
   icon: "rgba(255, 249, 242, 0.72)",
   iconActive: "#FFFFFF",
 } as const;
@@ -57,9 +62,6 @@ export function FloatingTabBar({
 }: BottomTabBarProps) {
   const insets = useSafeAreaInsets();
 
-  // Only routes that opt in with an icon, and aren't hidden with `href: null`.
-  // A custom tab bar receives EVERY route in the folder; without this filter an
-  // extra file such as explore.tsx would show up as an empty tab.
   const tabs = state.routes.filter((route) => {
     const options = descriptors[route.key].options;
     return (
@@ -70,16 +72,11 @@ export function FloatingTabBar({
   const focusedKey = state.routes[state.index]?.key;
   const activeIndex = tabs.findIndex((route) => route.key === focusedKey);
 
-  // The one value everything below reads: the tab index, animated. It follows
-  // the navigation state, so it also glides when something else navigates
-  // (a "View cart" button on Home, say), not only on taps.
   const position = useSharedValue(Math.max(activeIndex, 0));
   useEffect(() => {
     if (activeIndex >= 0) position.value = withSpring(activeIndex, SPRING);
   }, [activeIndex, position]);
 
-  // The bar leaves with the keyboard: on Android (window resize) it would
-  // otherwise ride up above it.
   const [keyboardOpen, setKeyboardOpen] = useState(false);
   const hidden = useSharedValue(0);
   useEffect(() => {
@@ -113,14 +110,31 @@ export function FloatingTabBar({
   }));
 
   return (
-    // `box-none`: the full-width strip must not swallow touches meant for the
-    // screen behind it; only the pill itself is touchable.
     <Animated.View
       accessibilityRole="tablist"
       pointerEvents={keyboardOpen ? "none" : "box-none"}
       style={[styles.wrap, { bottom: insets.bottom + LIFT }, wrapStyle]}
     >
       <View style={[styles.bar, { width: tabs.length * SLOT + BAR_PAD * 2 }]}>
+        {/* Glass backdrop. `tint="dark"` gets the blur in the right tonal
+            range on Android (where blur intensity behaves differently than
+            iOS); the explicit tint View on top is what actually carries the
+            FUFU brand colour, since BlurView's own `tint` prop is coarse. */}
+        <BlurView
+          intensity={38}
+          tint="dark"
+          style={StyleSheet.absoluteFill}
+          experimentalBlurMethod={
+            Platform.OS === "android" ? "dimezisBlurView" : undefined
+          }
+        />
+        <View style={[StyleSheet.absoluteFill, styles.tint]} />
+        {/* Hairline top+edge highlight: the thing that sells "glass" rather
+            than "dark translucent plastic" is a faint light edge where it
+            would catch a reflection. */}
+        <View style={styles.edge} pointerEvents="none" />
+
+        <Animated.View style={[styles.bubbleGlow, bubbleStyle]} />
         <Animated.View style={[styles.bubble, bubbleStyle]} />
         {tabs.map((route, index) => {
           const { options } = descriptors[route.key];
@@ -130,7 +144,6 @@ export function FloatingTabBar({
               key={route.key}
               focused={focused}
               index={index}
-              // The label is gone visually but not for screen readers.
               label={
                 options.tabBarAccessibilityLabel ?? options.title ?? route.name
               }
@@ -185,10 +198,6 @@ function TabItem({
 }) {
   const press = useSharedValue(0);
 
-  // Distance from the bubble to this tab: 0 when it's on it, 1 once it's a full
-  // slot away. Two stacked copies of the icon crossfade on it, so as the bubble
-  // slides past, each icon it crosses lights up and dims in turn instead of
-  // snapping. (An SVG icon's `color` can't be animated; opacity can.)
   const away = useAnimatedStyle(() => ({
     opacity: Math.min(Math.abs(position.value - index), 1),
   }));
@@ -228,19 +237,30 @@ function TabItem({
 const styles = StyleSheet.create({
   wrap: { alignItems: "center", left: 0, position: "absolute", right: 0 },
   bar: {
-    backgroundColor: COLORS.bar,
     borderRadius: BAR_HEIGHT / 2,
     elevation: 12,
     flexDirection: "row",
     height: BAR_HEIGHT,
+    overflow: "hidden",
     paddingHorizontal: BAR_PAD,
-    shadowColor: COLORS.bar,
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.3,
+    shadowOpacity: 0.25,
     shadowRadius: 18,
   },
-  // Absolute, so it sits behind the tabs; centred on the first slot, then
-  // translated by position * SLOT.
+  tint: {
+    backgroundColor: COLORS.barTint,
+  },
+  edge: {
+    borderColor: COLORS.barBorder,
+    borderRadius: BAR_HEIGHT / 2,
+    borderWidth: 1,
+    bottom: 0,
+    left: 0,
+    position: "absolute",
+    right: 0,
+    top: 0,
+  },
   bubble: {
     backgroundColor: COLORS.bubble,
     borderRadius: BUBBLE / 2,
@@ -249,6 +269,15 @@ const styles = StyleSheet.create({
     position: "absolute",
     top: (BAR_HEIGHT - BUBBLE) / 2,
     width: BUBBLE,
+  },
+  bubbleGlow: {
+    backgroundColor: COLORS.bubbleGlow,
+    borderRadius: (BUBBLE + 20) / 2,
+    height: BUBBLE + 20,
+    left: BAR_PAD + (SLOT - (BUBBLE + 20)) / 2,
+    position: "absolute",
+    top: (BAR_HEIGHT - (BUBBLE + 20)) / 2,
+    width: BUBBLE + 20,
   },
   item: {
     alignItems: "center",
